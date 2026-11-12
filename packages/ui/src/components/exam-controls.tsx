@@ -5,7 +5,7 @@ import { Button as HeroButton, Modal as HeroModal, Spinner } from '@heroui/react
 import type { ButtonProps as LegacyButtonProps } from './button.js';
 type ButtonProps = Omit<React.ComponentProps<typeof HeroButton>, 'variant' | 'size' | 'children'> & Pick<LegacyButtonProps, 'variant' | 'size' | 'loading' | 'disabled' | 'leftIcon' | 'rightIcon'> & { children?: React.ReactNode };
 import type { ModalProps } from './modal.js';
-export { Alert, Card, Chip, Radio, RadioGroup, Label, ProgressBar, ProgressCircle, Tabs, Popover, Switch, TextArea, TextField, Description, ButtonGroup, Separator, Skeleton, Tooltip, Select, ListBox, Checkbox, Input } from '@heroui/react';
+export { Alert, Card, Chip, Radio, RadioGroup, Label, ProgressBar, ProgressCircle, Tabs, Dropdown, Popover, Switch, TextArea, TextField, Description, ButtonGroup, Separator, Skeleton, Tooltip, Select, ListBox, Checkbox, Input } from '@heroui/react';
 
 // API compatibility only: all visuals and interactions belong to HeroUI.
 export function Button({ variant = 'primary', size = 'md', disabled, loading, leftIcon, rightIcon, children, value, ...props }: Omit<ButtonProps, 'asChild'>): React.JSX.Element {

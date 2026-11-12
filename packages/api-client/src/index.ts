@@ -1034,6 +1034,13 @@ export class ApiClient {
   }
 
   /**
+   * List the signed-in learner’s active remembered cards eligible for reset
+   */
+  public async getSrsResetCandidates<T = unknown>(): Promise<T> {
+    return this.request<T>('GET', '/api/v1/me/srs/reset-candidates');
+  }
+
+  /**
    * Danh sách huy hiệu thành tích đã đạt
    */
   public async getUserAchievements<T = unknown>(): Promise<T> {
@@ -1332,6 +1339,13 @@ export class ApiClient {
    */
   public async requestRefund<T = unknown>(body: unknown): Promise<T> {
     return this.request<T>('POST', '/api/v1/me/refund-requests', { body });
+  }
+
+  /**
+   * Reset the explicitly confirmed remembered card selection while preserving history
+   */
+  public async resetSrsRememberedCards<T = unknown>(body: unknown): Promise<T> {
+    return this.request<T>('POST', '/api/v1/me/srs/reset', { body });
   }
 
   /**

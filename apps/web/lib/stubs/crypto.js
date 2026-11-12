@@ -1,3 +1,4 @@
+/* global Buffer */
 export const randomUUID = () =>
   typeof globalThis !== 'undefined' && globalThis.crypto?.randomUUID
     ? globalThis.crypto.randomUUID()

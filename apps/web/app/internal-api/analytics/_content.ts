@@ -48,9 +48,9 @@ export function plainText(node: Node): string {
   return '';
 }
 
-/** Stem text with the blank shown as （　）, without doubling parentheses already in the text. */
+/** Stem text with the blank shown as a full-width blank, without doubling parentheses already in the text. */
 function stemWithBlank(node: Node): string {
-  return stemWithBlankRaw(node).replace(/（\s*（　）\s*）/g, '（　）');
+  return stemWithBlankRaw(node).replace(/（\s*（\u3000）\s*）/g, '（　）');
 }
 
 function stemWithBlankRaw(node: Node): string {

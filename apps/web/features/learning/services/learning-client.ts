@@ -130,6 +130,20 @@ export class LearningClient {
     return this.request<{ items: NotebookItem[]; totalCount: number }>('GET', endpoint);
   }
 
+  /** Load every page before choosing practice questions; never silently use only the first 100. */
+  public async getAllNotebookItems(): Promise<NotebookItem[]> {
+    const items = new Map<string, NotebookItem>();
+    let offset = 0;
+    while (true) {
+      const page = await this.getNotebookItems({ limit: 100, offset });
+      const before = items.size;
+      for (const item of page.items) items.set(item.id, item);
+      if (page.items.length < 100) return [...items.values()];
+      if (items.size === before) throw new LearningClientError('Notebook pagination did not advance', 502);
+      offset += page.items.length;
+    }
+  }
+
   public async createNotebookItem(input: CreateNotebookItemInput): Promise<NotebookItem> {
     return this.request<NotebookItem>('POST', '/me/notebook-items', input);
   }
@@ -157,6 +171,23 @@ export class LearningClient {
   }
 
   // 2. SRS & Flashcards
+  /** Explicitly enroll notebook items using the API's idempotent card endpoint. */
+  public async prepareNotebookCards(): Promise<void> {
+    const limit = 100;
+    let offset = 0;
+    while (true) {
+      const page = await this.getNotebookItems({ limit, offset });
+      for (const item of page.items) {
+        if (item.mastered) continue;
+        await this.request('POST', `/me/notebook-items/${encodeURIComponent(item.id)}/cards`, {
+          template: 'term_to_meaning',
+        });
+      }
+      if (page.items.length < limit) break;
+      offset += page.items.length;
+    }
+  }
+
   public async getDueCards(timezone = 'Asia/Ho_Chi_Minh', limit = 50): Promise<{
     items: DueFlashcard[];
     totalCount: number;
@@ -169,6 +200,14 @@ export class LearningClient {
       timezone: string;
       asOf: string;
     }>('GET', `/me/srs/due?timezone=${encodeURIComponent(timezone)}&limit=${limit}`);
+  }
+
+  public async getResetCandidates(): Promise<{ cardIds: string[]; count: number }> {
+    return this.request('GET', '/me/srs/reset-candidates');
+  }
+
+  public async resetRememberedCards(cardIds: string[]): Promise<{ resetCount: number; alreadyReset: boolean }> {
+    return this.request('POST', '/me/srs/reset', { cardIds, confirmed: true });
   }
 
   public async submitReview(input: {

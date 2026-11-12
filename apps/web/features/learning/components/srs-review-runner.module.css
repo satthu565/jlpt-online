@@ -1,0 +1,63 @@
+.runner { display: flex; flex-direction: column; gap: 16px; scroll-margin-top: 88px; width: 100%; min-width: 0; margin-inline: auto; }
+.workspace { --accent: var(--color-blue-500); --accent-hover: var(--color-blue-600); --accent-soft: var(--color-blue-50); --accent-soft-foreground: var(--color-blue-600); display: flex; flex-direction: column; gap: 20px; padding: 16px 0; border-radius: 24px; background: radial-gradient(ellipse at 50% 40%, color-mix(in srgb, var(--color-blue-50) 48%, transparent), transparent 75%); }
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+.titleGroup { display: flex; align-items: center; gap: 10px; flex: 1; }
+.titleGroup h2 { font-size: 1.25rem; font-weight: 700; white-space: nowrap; }
+.modeTabs { flex: 0 0 320px; width: 320px; max-width: 100%; margin-inline: auto; }
+.modeTabs [role=tab] { width: auto; white-space: nowrap; flex: 1 1 auto; display: flex; gap: 10px; padding-inline: 24px; }
+.toolbarActions { display: flex; align-items: center; gap: 10px; }
+.resetButton { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 25%, var(--border)); }
+.progressCard { background: color-mix(in srgb, var(--surface) 65%, transparent); border: 1px solid var(--border); padding: 16px 24px; }
+.progressContent { display: flex; flex-direction: row; align-items: center; gap: 24px; }
+.progressLabel { white-space: nowrap; }
+.dailyProgress { flex: 1; min-width: 100px; }
+.progressTrack { height: 10px; background: var(--color-blue-100); }
+.progressFill { background: var(--color-blue-500); }
+.counts { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; border-left: 1px solid var(--border); padding-left: 24px; }
+.reviewPanel { display: flex; flex-direction: column; gap: 24px; }
+.footerActions { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
+.deckPanel { display: grid; gap: 12px; }
+.deckCard { display: flex; flex-direction: row; justify-content: space-between; align-items: center; gap: 20px; }
+.deckCard h3 { font-size: 1.375rem; font-weight: 650; overflow-wrap: anywhere; }
+.deckCard p { color: var(--text-secondary); overflow-wrap: anywhere; }
+.deckActions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+@media (max-width: 900px) {
+  .modeTabs { order: 3; flex-basis: 100%; width: 100%; }
+  .modeTabs [role=tab] { flex: 1; }
+  .progressContent { gap: 16px; flex-wrap: wrap; }
+  .counts { border-left: 0; padding-left: 0; }
+}
+@media (max-width: 520px) {
+  .workspace { gap: 16px; padding-top: 4px; }
+  .toolbar { gap: 12px; }
+  .titleGroup { flex-basis: 100%; }
+  .titleGroup h2 { font-size: 1.125rem; }
+  .toolbarActions { width: 100%; gap: 8px; }
+  .toolbarActions > button { font-size: .8125rem; }
+  .modeTabs [role=tab] { padding-inline: 18px; }
+  .progressCard { padding: 14px; }
+  .progressContent { gap: 12px; }
+  .progressLabel { font-size: .875rem; }
+  .counts { width: 100%; font-size: .875rem; }
+  .deckCard { flex-direction: column; align-items: stretch; }
+  .deckActions { justify-content: flex-end; }
+}
+
+.deckCard > div:first-child { min-width: 0; }
+
+.modeTabs { background: transparent; }
+.modeTabs [role=tab][data-selected=true] { color: var(--color-blue-500); }
+.modeTabs :global(.tabs__indicator) { background: var(--color-blue-50); border-radius: 12px; border-bottom: 2px solid var(--color-blue-500); box-shadow: none; }
+
+.progressBody { display: flex; flex-direction: column; gap: 0; }
+.settingsDivider { margin-block: 20px; }
+.settingsContent { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.settingsTitle { font-size: 1rem; line-height: 1.5; font-weight: 600; }
+.settingsFields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.settingsHint { display: flex; align-items: center; gap: 6px; color: var(--text-muted); font-size: .8125rem; }
+.settingsInfo { width: 28px; height: 28px; min-width: 28px; color: var(--text-muted); }
+.settingsTooltip { max-width: min(360px, calc(100vw - 32px)); line-height: 1.6; }
+@media (max-width: 640px) {
+  .settingsFields { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .settingsDivider { margin-block: 16px; }
+}

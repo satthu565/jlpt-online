@@ -1,6 +1,6 @@
 'use client';
 
-import { BookOpen, Check, ArrowUpRight, ChevronDown, ChevronUp, Download, ExternalLink, Lightbulb, NotebookPen, Search, Trash2, Volume2 } from 'lucide-react';
+import { BookOpen, Check, Circle, CircleCheck, ArrowUpRight, ChevronDown, ChevronUp, Download, ExternalLink, Lightbulb, NotebookPen, Search, Trash2, Volume2 } from 'lucide-react';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { getNotebookSourceHref } from '../services/notebook-source-link';
@@ -13,6 +13,7 @@ import { Chip, Separator } from '@jlpt/ui/components/exam-controls';
 import { Alert } from '@jlpt/ui/components/alert';
 import { Modal } from '@jlpt/ui/components/modal';
 import { Spinner } from '@jlpt/ui/components/spinner';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@jlpt/ui/components/tooltip';
 import type {
   NotebookItem,
   NotebookItemKind,
@@ -529,10 +530,15 @@ export function NotebookView({
             </CardContent>
             <Separator className="notebook-divider" />
             <CardFooter className="notebook-card-footer">
-              <Button variant="secondary" size="sm" className="notebook-mastery" onClick={() => onUpdateItem(item.id, { mastered: !item.mastered })} aria-pressed={item.mastered} aria-label={item.mastered ? t('notebook.actions.markUnmastered') : t('notebook.actions.markMastered')}>
-                {item.mastered && <Check className="size-3.5" aria-hidden="true" />}
-                {t('notebook.actions.markMastered')}
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="secondary" size="sm" className="notebook-mastery" onClick={() => onUpdateItem(item.id, { mastered: !item.mastered })} aria-pressed={item.mastered}>
+                    {item.mastered ? <CircleCheck className="size-3.5" aria-hidden="true" /> : <Circle className="size-3.5" aria-hidden="true" />}
+                    {t(item.mastered ? 'notebook.mastery.mastered' : 'notebook.mastery.notMastered')}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>{t(item.mastered ? 'notebook.mastery.markUnmastered' : 'notebook.mastery.markMastered')}</TooltipContent>
+              </Tooltip>
               <div className="notebook-card-actions flex items-center gap-2">
                 <Button variant="secondary" size="sm" className="notebook-examples" onClick={() => handleOpenExamples(item)} aria-label={t('notebook.actions.viewExamples')}>
                   <Search className="size-3.5" aria-hidden="true" /> {t('notebook.actions.viewExamples')}

@@ -87,7 +87,7 @@ describe('E2E Advanced Suite: SRS Sync, Notifications, Classroom & Community (A0
       const clientReviewId = await syncManager.queueReview('card-101', 3);
 
       expect(clientReviewId).toBeDefined();
-      expect(clientReviewId).toMatch(/^rev-/);
+      expect(clientReviewId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
 
       // Verify queued item
       const queue = syncManager.getQueue();

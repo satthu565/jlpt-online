@@ -1,10 +1,20 @@
 'use client';
 
-import { Check } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Button } from '@jlpt/ui/components/button';
-import { Card } from '@jlpt/ui/components/card';
+import {
+  Check,
+  RefreshCw,
+  Users,
+  FileText,
+  TrendingUp,
+  AlertTriangle,
+  DollarSign,
+  Activity,
+  Layers,
+  Sparkles,
+} from 'lucide-react';
+import { Button, Card, Chip, Avatar, AvatarFallback } from '@heroui/react';
 import { AdminGuard } from '../lib/ui-guard';
 import { useAdminAuth } from '../lib/auth-context';
 import { getNavigationSections } from '../lib/navigation';
@@ -114,35 +124,52 @@ export default function AdminDashboardPage(): React.JSX.Element {
     void fetchDashboard();
   }, [fetchDashboard]);
 
+  const userInitials = (user?.name || user?.email || 'AD').slice(0, 2).toUpperCase();
+
   return (
     <AdminGuard pathname="/">
       <div className="w-full max-w-7xl mx-auto p-4 md:p-8 space-y-6 overflow-x-hidden">
-        {/* Header */}
-        <header className="bg-white p-6 rounded-xl border border-gray-200 flex flex-wrap items-center justify-between gap-4 shadow-xs">
-          <div>
-            <h1 data-testid="page-title" className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">
-              Tổng quan chỉ số hoạt động hệ thống
-            </h1>
-            <p className="mt-1 text-sm text-gray-500">
-              Xin chào <strong>{user?.name || user?.email}</strong> — Chúc bạn một ngày làm việc hiệu quả!
-            </p>
+        {/* Header Hero Banner */}
+        <header className="p-6 rounded-2xl border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xs flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <Avatar color="accent" size="lg" className="ring-2 ring-teal-500/20 bg-teal-50 text-teal-700">
+              <AvatarFallback className="font-bold text-sm">{userInitials}</AvatarFallback>
+            </Avatar>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1
+                  data-testid="page-title"
+                  className="text-2xl md:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white"
+                >
+                  Tổng quan chỉ số hoạt động hệ thống
+                </h1>
+                <Sparkles className="size-5 text-teal-600 dark:text-teal-400" aria-hidden="true" />
+              </div>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                Xin chào <strong>{user?.name || user?.email}</strong> — Chúc bạn một ngày làm việc hiệu quả!
+              </p>
+            </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <Button
               type="button"
               data-testid="btn-refresh-dashboard"
+              variant="primary"
+              size="sm"
               onClick={() => void fetchDashboard()}
-              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-xs transition"
+              className="font-semibold gap-1.5 shadow-xs bg-teal-600 hover:bg-teal-700 text-white rounded-xl"
             >
-              ↻ {t('common.retry', locale)}
-            </button>
-            <span className="px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-semibold">
+              <RefreshCw className={`size-3.5 ${isLoading ? 'animate-spin' : ''}`} aria-hidden="true" />
+              <span>{t('common.retry', locale)}</span>
+            </Button>
+            <Chip color="accent" variant="soft" className="text-xs font-semibold rounded-lg bg-teal-50 text-teal-700 border border-teal-200/80">
               Vai trò: {user ? t(`roles.${user.role}`, locale) : ''}
-            </span>
-            <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold">
-              <Check className="inline size-4 align-[-2px]" aria-hidden="true" /> TOTP 2FA Đã kích hoạt
-            </span>
+            </Chip>
+            <Chip color="success" variant="soft" className="text-xs font-semibold gap-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200/80">
+              <Check className="size-3.5 inline align-[-1px]" aria-hidden="true" />
+              <span>TOTP 2FA Đã kích hoạt</span>
+            </Chip>
           </div>
         </header>
 
@@ -151,11 +178,11 @@ export default function AdminDashboardPage(): React.JSX.Element {
           <div
             role="alert"
             data-testid="dashboard-error-alert"
-            className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm flex items-center justify-between"
+            className="p-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-xl text-sm flex items-center justify-between"
           >
             <span>{error}</span>
             <Button
-              variant="destructive"
+              variant="danger"
               size="sm"
               onClick={() => void fetchDashboard()}
             >
@@ -168,82 +195,157 @@ export default function AdminDashboardPage(): React.JSX.Element {
           <div
             role="status"
             data-testid="dashboard-loading"
-            className="p-4 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg text-sm flex items-center gap-2"
+            className="p-4 bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-300 rounded-xl text-sm flex items-center gap-2.5"
           >
-            <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+            <div className="size-4 border-2 border-teal-600 border-t-transparent rounded-full animate-spin" />
             <span>{t('common.loading', locale)}</span>
           </div>
         )}
 
         {/* Metrics Grid */}
         <section aria-labelledby="metrics-heading" className="space-y-3">
-          <h2 id="metrics-heading" className="text-lg font-bold text-gray-800">
-            Chỉ số hoạt động cốt lõi (Live System Overview)
-          </h2>
+          <div className="flex items-center justify-between">
+            <h2 id="metrics-heading" className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <Activity className="size-5 text-teal-600 dark:text-teal-400" aria-hidden="true" />
+              <span>Chỉ số hoạt động cốt lõi (Live System Overview)</span>
+            </h2>
+            <span className="text-xs text-gray-400 font-medium">Cập nhật thời gian thực</span>
+          </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            <div
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {/* 1. Tổng người dùng */}
+            <Card
               data-testid="stat-total-users"
-              className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-5 space-y-1"
+              className="p-5 border border-gray-200/80 dark:border-gray-800 shadow-xs hover:shadow-md transition-shadow duration-200 bg-white dark:bg-gray-900 rounded-2xl flex flex-col justify-between"
             >
-              <div className="text-xs text-gray-500 font-medium">Người dùng hệ thống</div>
-              <div className="text-2xl font-extrabold text-gray-900">
-                {metrics.totalUsers.toLocaleString()}
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Người dùng hệ thống</div>
+                  <div className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+                    {metrics.totalUsers.toLocaleString()}
+                  </div>
+                </div>
+                <div className="p-2.5 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 border border-teal-100 dark:border-teal-900/40">
+                  <Users className="size-5" aria-hidden="true" />
+                </div>
               </div>
-              <div className="text-xs text-gray-500">Tài khoản học viên &amp; nhân sự</div>
-            </div>
+              <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs">
+                <span className="text-gray-500 dark:text-gray-400">Tài khoản học viên &amp; nhân sự</span>
+                <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                  Hoạt động
+                </span>
+              </div>
+            </Card>
 
-            <div
+            {/* 2. Đề thi công bố */}
+            <Card
               data-testid="stat-total-exams"
-              className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-5 space-y-1"
+              className="p-5 border border-gray-200/80 dark:border-gray-800 shadow-xs hover:shadow-md transition-shadow duration-200 bg-white dark:bg-gray-900 rounded-2xl flex flex-col justify-between"
             >
-              <div className="text-xs text-gray-500 font-medium">Đề thi công bố</div>
-              <div className="text-2xl font-extrabold text-blue-600">
-                {metrics.totalExams}
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Đề thi công bố</div>
+                  <div className="text-2xl md:text-3xl font-extrabold text-teal-600 dark:text-teal-400 tracking-tight">
+                    {metrics.totalExams}
+                  </div>
+                </div>
+                <div className="p-2.5 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 border border-teal-100 dark:border-teal-900/40">
+                  <FileText className="size-5" aria-hidden="true" />
+                </div>
               </div>
-              <div className="text-xs text-gray-500">Từ N5 đến N1</div>
-            </div>
+              <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs">
+                <span className="text-gray-500 dark:text-gray-400">Từ N5 đến N1</span>
+                <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-teal-50 text-teal-700 border border-teal-200/60">
+                  N5–N1
+                </span>
+              </div>
+            </Card>
 
-            <div
+            {/* 3. Tỷ lệ hoàn thành */}
+            <Card
               data-testid="stat-completion-rate"
-              className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-5 space-y-1"
+              className="p-5 border border-gray-200/80 dark:border-gray-800 shadow-xs hover:shadow-md transition-shadow duration-200 bg-white dark:bg-gray-900 rounded-2xl flex flex-col justify-between"
             >
-              <div className="text-xs text-gray-500 font-medium">Tỷ lệ hoàn thành đề</div>
-              <div className="text-2xl font-extrabold text-emerald-600">
-                {metrics.overallCompletionRate}%
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tỷ lệ hoàn thành đề</div>
+                  <div className="text-2xl md:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 tracking-tight">
+                    {metrics.overallCompletionRate}%
+                  </div>
+                </div>
+                <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/40">
+                  <TrendingUp className="size-5" aria-hidden="true" />
+                </div>
               </div>
-              <div className="text-xs text-gray-500">Bài thi nộp thành công</div>
-            </div>
+              <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs">
+                <span className="text-gray-500 dark:text-gray-400">Bài thi nộp thành công</span>
+                <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                  &gt;70%
+                </span>
+              </div>
+            </Card>
 
-            <div
+            {/* 4. Báo lỗi câu hỏi */}
+            <Card
               data-testid="stat-open-reports"
-              className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-5 space-y-1"
+              className="p-5 border border-gray-200/80 dark:border-gray-800 shadow-xs hover:shadow-md transition-shadow duration-200 bg-white dark:bg-gray-900 rounded-2xl flex flex-col justify-between"
             >
-              <div className="text-xs text-gray-500 font-medium">Báo lỗi câu hỏi</div>
-              <div className="text-2xl font-extrabold text-amber-600">
-                {metrics.openReportsCount}
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Báo lỗi câu hỏi</div>
+                  <div className="text-2xl md:text-3xl font-extrabold text-amber-600 dark:text-amber-400 tracking-tight">
+                    {metrics.openReportsCount}
+                  </div>
+                </div>
+                <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/40">
+                  <AlertTriangle className="size-5" aria-hidden="true" />
+                </div>
               </div>
-              <div className="text-xs text-amber-600 font-medium">Cần xử lý &amp; kiểm duyệt</div>
-            </div>
+              <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs">
+                <span className="text-amber-600 dark:text-amber-400 font-medium">Cần xử lý &amp; kiểm duyệt</span>
+                <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200/60">
+                  Chờ duyệt
+                </span>
+              </div>
+            </Card>
 
-            <div
+            {/* 5. Doanh thu gói học */}
+            <Card
               data-testid="stat-gross-revenue"
-              className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] p-5 space-y-1"
+              className="p-5 border border-gray-200/80 dark:border-gray-800 shadow-xs hover:shadow-md transition-shadow duration-200 bg-white dark:bg-gray-900 rounded-2xl flex flex-col justify-between"
             >
-              <div className="text-xs text-gray-500 font-medium">Doanh thu gói học</div>
-              <div className="text-2xl font-extrabold text-purple-600 truncate">
-                {metrics.grossRevenueVnd.toLocaleString()} đ
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Doanh thu gói học</div>
+                  <div className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white truncate tracking-tight">
+                    {metrics.grossRevenueVnd.toLocaleString()} đ
+                  </div>
+                </div>
+                <div className="p-2.5 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 border border-teal-100 dark:border-teal-900/40">
+                  <DollarSign className="size-5" aria-hidden="true" />
+                </div>
               </div>
-              <div className="text-xs text-emerald-600 font-medium">Đã đối soát thanh toán</div>
-            </div>
+              <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs">
+                <span className="text-emerald-600 dark:text-emerald-400 font-medium">Đã đối soát thanh toán</span>
+                <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                  Đối soát
+                </span>
+              </div>
+            </Card>
           </div>
         </section>
 
         {/* Dynamic Section Cards */}
         <section aria-labelledby="modules-heading" className="space-y-3">
-          <h2 id="modules-heading" className="text-lg font-bold text-gray-800">
-            Chức năng quản trị được phân quyền
-          </h2>
+          <div className="flex items-center justify-between">
+            <h2 id="modules-heading" className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <Layers className="size-5 text-teal-600 dark:text-teal-400" aria-hidden="true" />
+              <span>Chức năng quản trị được phân quyền</span>
+            </h2>
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              {sections.filter((sec) => sec.id !== 'overview').flatMap((s) => s.items).length} phân hệ khả dụng
+            </span>
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {sections
@@ -253,14 +355,14 @@ export default function AdminDashboardPage(): React.JSX.Element {
                 <Card
                   key={item.id}
                   data-testid={`dashboard-card-${item.id}`}
-                  className="p-5 hover:border-blue-500 hover:shadow-md transition duration-150 flex flex-col justify-between"
+                  className="p-5 border border-gray-200/80 dark:border-gray-800 hover:border-teal-500/60 dark:hover:border-teal-500/60 hover:shadow-md transition-all duration-200 flex flex-col justify-between bg-white dark:bg-gray-900 rounded-2xl group"
                 >
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-base font-bold text-gray-900 dark:text-gray-100">
+                      <h3 className="text-base font-bold text-gray-900 dark:text-white group-hover:text-teal-600 transition-colors">
                         <Link
                           href={item.href}
-                          className="hover:text-blue-600 no-underline hover:underline text-gray-900 dark:text-gray-100 focus:outline-none"
+                          className="hover:underline focus:outline-none"
                         >
                           {t(item.labelKey, locale)}
                         </Link>
@@ -269,7 +371,7 @@ export default function AdminDashboardPage(): React.JSX.Element {
                         href={item.href}
                         tabIndex={-1}
                         aria-hidden="true"
-                        className="text-blue-600 text-lg font-bold no-underline"
+                        className="text-teal-600 text-lg font-bold no-underline group-hover:translate-x-1 transition-transform"
                       >
                         →
                       </Link>
@@ -285,12 +387,17 @@ export default function AdminDashboardPage(): React.JSX.Element {
 
         {/* Recent Activity Stream */}
         <section aria-labelledby="activity-heading" className="space-y-3">
-          <h2 id="activity-heading" className="text-lg font-bold text-gray-800">
-            Nhật ký hoạt động trực tiếp gần đây
-          </h2>
-          <div className="surface surface--default rounded-3xl shadow-[var(--surface-shadow)] overflow-hidden divide-y divide-gray-100">
+          <div className="flex items-center justify-between">
+            <h2 id="activity-heading" className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <Activity className="size-5 text-teal-600 dark:text-teal-400" aria-hidden="true" />
+              <span>Nhật ký hoạt động trực tiếp gần đây</span>
+            </h2>
+            <span className="text-xs text-gray-400">Cập nhật từ audit log</span>
+          </div>
+
+          <Card className="border border-gray-200/80 dark:border-gray-800 rounded-2xl shadow-xs overflow-hidden bg-white dark:bg-gray-900 divide-y divide-gray-100 dark:divide-gray-800">
             {activities.length === 0 ? (
-              <div data-testid="activity-empty" className="p-6 text-center text-xs text-gray-400 italic">
+              <div data-testid="activity-empty" className="p-8 text-center text-xs text-gray-400 italic">
                 {t('common.empty', locale)}
               </div>
             ) : (
@@ -298,17 +405,19 @@ export default function AdminDashboardPage(): React.JSX.Element {
                 <div
                   key={act.id}
                   data-testid={`activity-item-${act.id}`}
-                  className="p-4 flex items-center justify-between hover:bg-gray-50"
+                  className="p-4 flex items-center justify-between hover:bg-teal-50/30 dark:hover:bg-gray-800/40 transition-colors"
                 >
-                  <div>
-                    <div className="text-sm font-semibold text-gray-900">{act.title}</div>
-                    <div className="text-xs text-gray-500">Phân hệ: {act.type}</div>
+                  <div className="space-y-0.5">
+                    <div className="text-sm font-semibold text-gray-900 dark:text-white">{act.title}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Phân hệ: {act.type}</div>
                   </div>
-                  <span className="text-xs text-gray-400">{act.time}</span>
+                  <span className="text-xs font-mono px-2.5 py-1 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+                    {act.time}
+                  </span>
                 </div>
               ))
             )}
-          </div>
+          </Card>
         </section>
       </div>
     </AdminGuard>

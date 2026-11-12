@@ -13256,6 +13256,150 @@ paths:
       summary: Lấy danh sách thẻ SRS đến hạn ôn tập hôm nay
       tags:
         - SRS
+  /api/v1/me/srs/reset:
+    post:
+      operationId: resetSrsRememberedCards
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: false
+              properties:
+                cardIds:
+                  items:
+                    format: uuid
+                    type: string
+                  maxItems: 10000
+                  minItems: 1
+                  type: array
+                  uniqueItems: true
+                confirmed:
+                  const: true
+                  type: boolean
+              required:
+                - cardIds
+                - confirmed
+              type: object
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  alreadyReset:
+                    type: boolean
+                  resetCount:
+                    minimum: 0
+                    type: integer
+                required:
+                  - resetCount
+                  - alreadyReset
+                type: object
+          description: Schedules restarted, or the same selection was already reset
+        '400':
+          content:
+            application/json:
+              examples:
+                default:
+                  summary: VALIDATION_ERROR
+                  value:
+                    error:
+                      code: VALIDATION_ERROR
+                      details: {}
+                      message: Dữ liệu gửi lên không đúng định dạng.
+                      requestId: req_01J00000000000000000000000
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+          description: Validation error
+        '401':
+          content:
+            application/json:
+              examples:
+                default:
+                  summary: UNAUTHENTICATED
+                  value:
+                    error:
+                      code: UNAUTHENTICATED
+                      details: {}
+                      message: Yêu cầu đăng nhập.
+                      requestId: req_01J00000000000000000000000
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+          description: Authentication required
+        '404':
+          content:
+            application/json:
+              examples:
+                default:
+                  summary: NOT_FOUND
+                  value:
+                    error:
+                      code: NOT_FOUND
+                      details: {}
+                      message: Some cards are no longer available.
+                      requestId: req_01J00000000000000000000000
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+          description: Card not found
+        '409':
+          content:
+            application/json:
+              examples:
+                default:
+                  summary: VERSION_CONFLICT
+                  value:
+                    error:
+                      code: VERSION_CONFLICT
+                      details: {}
+                      message: The reset selection has changed. Please reload.
+                      requestId: req_01J00000000000000000000000
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+          description: Selection changed
+      summary: Reset the explicitly confirmed remembered card selection while preserving history
+      tags:
+        - SRS
+  /api/v1/me/srs/reset-candidates:
+    get:
+      operationId: getSrsResetCandidates
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  cardIds:
+                    items:
+                      format: uuid
+                      type: string
+                    type: array
+                  count:
+                    minimum: 0
+                    type: integer
+                required:
+                  - cardIds
+                  - count
+                type: object
+          description: Reset candidates
+        '401':
+          content:
+            application/json:
+              examples:
+                default:
+                  summary: UNAUTHENTICATED
+                  value:
+                    error:
+                      code: UNAUTHENTICATED
+                      details: {}
+                      message: Yêu cầu đăng nhập.
+                      requestId: req_01J00000000000000000000000
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+          description: Authentication required
+      summary: List the signed-in learner’s active remembered cards eligible for reset
+      tags:
+        - SRS
   /api/v1/me/srs/reviews:
     post:
       operationId: submitCardReview

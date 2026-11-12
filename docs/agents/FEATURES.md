@@ -33,7 +33,7 @@ Ký hiệu: ✅ đang chạy · 🙈 đã code nhưng đang ẩn · ⏳ code xon
 | Tra từ, chi tiết từ vựng | `/tu-vung`, `/tu-vung/[term]` | `features/corpus`, module `vocab` |
 | Bộ dữ liệu kanji chuẩn: 3.186 chữ, cách dùng và ví dụ (#127) | admin `/kanji` | `data/kanji/kanji_chuan_v1.json`, bảng `kanji_dataset`, `apps/api/scripts/lexicon/import-kanji-dataset.mjs` |
 | Ngữ pháp, thống kê từ vựng trong đề | `/ngu-phap`, `/thong-ke-tu-vung` | `features/corpus` |
-| Sổ tay, flashcard SRS; lọc mục theo cấp độ đề nguồn N5–N1 kết hợp loại, trạng thái và tìm kiếm | `/so-tay` | `features/learning`, `packages/srs` |
+| Sổ tay, flashcard SRS (tạo thẻ từ các mục chưa thuộc bằng nút trong tab ôn tập; lỗi tải được hiển thị); lọc mục theo cấp độ đề nguồn N5–N1 kết hợp loại, trạng thái và tìm kiếm | `/so-tay` | `features/learning`, `packages/srs` |
 | Kế hoạch học | `/ke-hoach` | `features/planner` |
 | Thống kê cá nhân | `/thong-ke` | `features/analytics` |
 | Lịch thi JLPT tại Việt Nam, nhắc hạn đăng ký | `/lich-thi` | `apps/api/src/modules/exam/jlpt-schedule.controller.ts` |
@@ -152,6 +152,33 @@ Reviewed 297 文字・語彙 questions across all 11 imported N5 exams. Prepared
 
 - Sổ tay: tải thêm ví dụ qua client có xác thực; tra cứu cả khi lượt thi thật đang mở (chỉ thị chủ dự án 08/11/2026); báo rõ khi hết phiên, thiếu quyền, giới hạn tần suất hoặc lỗi tải; cho thử lại, không báo nhầm là không có kết quả.
 
-- Sổ tay: mỗi thẻ có Chip HeroUI nhỏ đồng bộ cho loại mục (ngữ pháp tím), link tên đề xanh và số câu vàng; hai Separator tách header/nội dung/footer; nút đã thuộc xanh, ví dụ trong đề cam và xóa đỏ nhạt; từ/mẫu ngữ pháp nổi bật, ẩn cách đọc trùng với mẫu; hỗ trợ metadata cũ trong tag, không thêm nguồn giả cho mục nhập tay.
+- Sổ tay: mỗi thẻ có Chip HeroUI nhỏ đồng bộ cho loại mục (ngữ pháp tím), link tên đề xanh và số câu vàng; hai Separator tách header/nội dung/footer; nút ghi nhớ hiển thị trạng thái hiện tại: Chưa thuộc (Circle, xám xanh) / Đã thuộc (CircleCheck, xanh lá), tooltip mô tả thao tác chuyển trạng thái; ví dụ trong đề cam và xóa đỏ nhạt; từ/mẫu ngữ pháp nổi bật, ẩn cách đọc trùng với mẫu; hỗ trợ metadata cũ trong tag, không thêm nguồn giả cho mục nhập tay.
 
 - Sổ tay: bấm tên đề mở đúng lượt làm đã lưu từ/ngữ pháp và cuộn tới câu nguồn theo ID; lưu attempt/exam trong metadata. Mục cũ chưa có mã lượt làm: tự mở nếu lịch sử chỉ có một lượt đúng đề, nhiều lượt thì lọc theo đề để chọn, giữ câu đích.
+
+## SRS study session (2026-11-09)
+
+- Workspace ôn tập dùng container chung của website (tối đa 1200px, cùng lề responsive với Sổ tay/Thư viện đề/Kế hoạch), không nới rộng riêng cho SRS: toolbar HeroUI với tab Ôn tập/Thẻ học (số thẻ thật), mục tiêu/reset/menu lưu và hoàn tác; Lưu kết quả đồng bộ tại chỗ, mũi tên quay về lưu trước khi rời phiên; tiến độ một hàng; mục tiêu/giới hạn thẻ mới mở rộng ngay trong cùng Card tiến độ, ngăn bằng Separator; chú thích ngắn kèm Tooltip HeroUI xem chi tiết, hai ô chọn xếp một cột trên điện thoại. Mũi tên duyệt thẻ đang sẵn sàng mà không chấm điểm; đánh giá thẻ đang chọn vẫn giữ thời gian chờ. Dấu sao lưu riêng theo tài khoản trên trình duyệt. Bốn mức có icon và dòng Ôn lại sau; âm thanh vẫn theo cờ tính năng hiện có.
+
+- Mặt sau flashcard rộng, có ProgressBar HeroUI theo vị trí thẻ, Chip Đáp án/Hán Việt, từ và cách đọc nổi bật; Separator và nhãn Nghĩa/Ví dụ tách nội dung thật. Bấm toàn bộ hai mặt bằng nút HeroUI trong suốt cả khi hover/nhấn, hỗ trợ Enter/Space; âm thanh chỉ xuất hiện khi tính năng và callback phát có sẵn; không lồng nút trong nút.
+
+- Đánh giá dưới flashcard theo mẫu: câu hỏi mức độ nhớ, bốn nút Quên/Khó nhớ/Nhớ/Dễ nhớ màu hồng/cam/đỏ/xanh với mốc ôn ngắn; màn hình nhỏ chia hai cột. Kết quả vẫn tự lưu nháp trên thiết bị, gửi máy chủ khi bấm Lưu kết quả.
+
+- Th? t? API ??n h?n m? ngay khi v?o tab, kh?ng hi?n nh?m m?n h?nh ch? 0:01 gi?a hai nh?p ??ng h?; th?i gian ch? th? Qu?n v?n ???c gi? khi t?i l?i.
+
+- Flashcard HeroUI hai mặt, lật 3D và chuyển thẻ, hỗ trợ giảm chuyển động, phím Space/Enter/1–4; 4 nút ghi rõ mốc ôn dự kiến theo lịch sử (lịch API hiện tại là nguồn chính thức).
+- Chọn Quên tạo hàng chờ 10 phút trong buổi; tiếp tục sau reload, hiển thị đếm ngược thay vì báo hoàn thành khi còn thẻ chờ.
+- Hoàn tác đánh giá cuối chưa chốt; đánh giá lưu nháp bền vững trên thiết bị, bấm Lưu kết quả hoặc Lưu và về sổ tay để đưa vào hàng đợi API có idempotency. Không hoàn tác lượt đã gửi máy chủ.
+- Mục tiêu/ngày, giới hạn thẻ mới/ngày, tiến độ riêng theo tài khoản trên trình duyệt này; ưu tiên thẻ đến hạn, mục tiêu không chặn thẻ đến hạn; giữ lịch khi mất mạng và thứ tự review của cùng thẻ. Không migration hay backfill.
+
+- SRS: sau khi hoàn tất, có nút Ôn lại lượt vừa học; ôn thêm độc lập, thẻ Quên quay lại cuối lượt, hoàn tác được, không ghi review API/đổi lịch hay cộng trùng tiến độ. Giữ bộ thẻ vừa học sau khi lưu/reload; các mã review mới dùng UUID đúng schema, hàng đợi legacy giữ nguyên local ID và lưu UUID gửi máy chủ trước khi retry.
+
+- SRS reset: nút Reset thẻ đã nhớ tải số lượng thật và yêu cầu xác nhận trước khi đặt lại các thẻ active ở nhóm review/repetitions > 0 thành thẻ mới. API retire ID thẻ cũ và tạo lịch mới trong một transaction, giữ notebook/mastery và review history; chặn review offline cũ tác động lịch mới, retry cùng lựa chọn không reset hai lần. Phải đồng bộ nháp/hàng đợi trước khi reset. Cần triển khai API mới; :3210 chỉ cập nhật web, nếu API chưa có endpoint thì báo rõ và không thực hiện reset.
+
+## Notebook practice (2026-11-10)
+
+- Tab Luyện tập ở /so-tay mở phần chọn bài, không tự tạo quiz khi chuyển tab. Nút luyện nhanh 10 câu dùng thiết lập đã lưu; có loại, chọn nghĩa/cách đọc, 5/10/20 câu và bộ lọc mở rộng theo cấp độ đề nguồn, nhãn, trạng thái thuộc.
+- Đọc đủ các trang notebook qua API thật rồi tạo câu hỏi trên trình duyệt. Câu hỏi/đáp án nhiễu cùng loại, bỏ nghĩa hoặc cách đọc trùng/đè lên nhau theo các biến thể phân cách bằng dấu; không dùng FALLBACK_DISTRACTORS của quiz API cũ. Không có đủ dữ liệu thì báo rõ, chỉ dùng 2–4 lựa chọn thật. Cấp độ là cấp độ đề nguồn, không suy diễn cấp độ từ.
+- Chọn đáp án chưa chấm; phải bấm Kiểm tra hoặc chọn Tôi chưa nhớ. Phản hồi có đáp án, cách đọc, nghĩa, ví dụ/ghi chú đã lưu và đối chiếu mục tương ứng với lựa chọn sai, không tự bịa lời giải hay ví dụ.
+- Kết quả có chi tiết câu sai/chưa nhớ, xem tất cả và luyện lại riêng các câu sai. Điểm lượt đầu giữ riêng qua mọi lần luyện lại; bắt đầu bài mới có trạng thái sạch. Bài dở được giữ khi đổi tab/tải lại, có xác nhận trước khi thay bằng bài mới.
+- Tiến độ và thiết lập lưu riêng theo tài khoản trên trình duyệt; kiểm tra cấu trúc bản lưu, báo lỗi quota/storage và lỗi tải với nút thử lại. Phím 1–4, Enter, focus và cuộn câu hỏi/phản hồi; HeroUI, bố cục 390/1366 px. Luyện tập không ghi SRS review hay thay mastery. Dạng điền câu/ngữ pháp theo ngữ cảnh là phần mở rộng sau, cần nguồn câu đủ rõ ràng.

@@ -130,7 +130,7 @@ function editDistance(a: string, b: string): number {
 
 /** Same characters in a different order: the learner swapped pieces of information (time, room, person...). */
 function sameCharsDifferentOrder(a: string, b: string): boolean {
-  const norm = (t: string): string => t.replace(/[\s、。,.　]/g, '');
+  const norm = (t: string): string => t.replace(/[\s、。,.\u3000]/g, '');
   const x = norm(a);
   const y = norm(b);
   if (x.length < 4 || x === y) return false;

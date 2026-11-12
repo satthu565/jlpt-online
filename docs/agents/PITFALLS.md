@@ -169,3 +169,33 @@ Symptom: N5 2010–2011 Q15 options 2 and 4 look identical despite different str
 ### Download release trong image PostgreSQL
 
 Triệu chứng: CI staging dừng ở `gzip: stdin: not in gzip format`, file WAL-G chỉ 92 byte; CodeQL cùng thời điểm lỗi tải HTTP 504. Nguyên nhân: `curl -L` vẫn trả thành công khi máy chủ trả lỗi HTTP, khiến trang lỗi bị chuyển sang tar. Cách đúng: tải release bằng `curl --fail --retry --retry-all-errors` kèm thời hạn kết nối/tải; giữ nguyên phiên bản đã ghim và không bỏ qua cổng staging.
+
+## SRS báo đã ôn xong dù sổ tay có mục
+
+Triệu chứng: tab SRS có 0 thẻ hoặc hiện hoàn thành ngay → lưu notebook item không tạo card/schedule; UI từng không gọi endpoint tạo thẻ, đồng thời nuốt lỗi tải due cards → cho người dùng chủ động tạo thẻ qua POST notebook-items/:id/cards (idempotent, giữ lịch thẻ cũ), phân trang danh sách và hiển thị lỗi tải riêng. Flashcard cũ có thể dùng front.kanji hoặc front.pattern, không chỉ front.term.
+
+## SRS: hoàn tác và ôn lại trong buổi
+
+- Hoàn tác sau khi đã gửi review sẽ không khôi phục được schedule chỉ bằng cách xóa UI → giữ đánh giá nháp trước khi người học bấm Lưu; ID review không đổi khi retry, chốt trước khi gửi và khôi phục checkpoint từ hàng đợi nếu bị ngắt. Không gửi rating ngược để giả hoàn tác.
+- Quên có lượt ôn lại trong 10 phút là hàng đợi luyện trong buổi, khác lịch nhiều ngày trên API; không báo hoàn tất nếu còn thẻ chờ. Thời gian nút đánh giá là dự kiến vì API cũ không trả easeFactor.
+- crypto.randomUUID không có trên HTTP IP LAN → dùng crypto.getRandomValues cho ID đánh giá. Các bản nháp và hàng đợi mới phải tách theo userId.
+
+- SRS POST review lỗi 500 ở SELECT card_reviews → client_review_id là UUID nhưng client cũ tạo rev-* → tạo UUID v4 bằng getRandomValues; với queue cũ giữ ID local để đối chiếu checkpoint, lưu serverReviewId UUID bền vững trước khi gửi. Không xóa lượt chưa đồng bộ hay đổi UUID sau mỗi retry.
+
+- Reset SRS bằng cách ghi đè schedule trên cùng card ID → review offline cũ có thể ghi đè lịch vừa reset → retire card cũ (status reset), tạo card/schedule mới, giữ lịch sử cũ và lọc active khi generate/review. Reset bắt buộc chọn ID đã xác nhận, xác thực ownership, row lock và transaction; retry danh sách đã retire trả alreadyReset. Không thử reset trên database chung khi chưa có sao lưu/đồng ý.
+
+### Notebook practice: stale rounds and misleading distractors
+
+- Triệu chứng: bấm Làm lại vẫn hiện kết quả cũ → component nhận quiz mới nhưng giữ state theo index/score → tạo session ID mới và thay toàn bộ trạng thái lượt, giữ riêng điểm lượt đầu khi luyện lại lỗi sai.
+- Triệu chứng: chỉ luyện được các mục đầu hoặc đáp án nhiễu không liên quan → list mặc định phân trang 100 mục, API quiz cũ có fallback và trộn loại → tải đủ notebook, lọc phạm vi câu được hỏi, lấy phương án thật cùng loại; chặn vòng lặp nếu trang không tiến triển, báo thiếu dữ liệu thay vì bịa phương án.
+- HeroSelect v3 có accessible name ghép giá trị hiện tại với label ở button trigger; Playwright nên tìm button theo label không exact hoặc dùng combobox khi có, rồi chọn option theo tên chính xác.
+
+- Xem thử cổng mới: GET chạy nhưng đăng nhập POST trả CSRF 403 → chuyển thẳng vào Next rewrite làm mất Host gốc ở API → dùng proxy nginx giữ Host cho /api/v1, không tắt OriginGuard. Cấu hình xem thử Luyện tập ở tools/ops/vm/notebook-practice-preview.conf (loopback 13222 → web 13221/API 4000; Windows 3211 → 13222 theo yêu cầu chủ dự án).
+
+## SRS hi?n ch? 0:01 khi v?a v?o tab
+
+Tri?u ch?ng: th? ??n h?n b? hi?n th?nh th? v?a qu?n ?ang ch?, r?i t? chuy?n sau m?t gi?y. Nguy?n nh?n: queue d?ng session.startedAt l?m availableAt cho to?n b? th?, nh?ng effect t?o/kh?i ph?c session sau m?c now c?a runner v?i mili gi?y. C?ch ??ng: th? API ??n h?n lu?n s?n s?ng; ch? event Qu?n ??t availableAt t??ng lai, v? c?p nh?t now c?ng l?c kh?i ph?c session.
+
+## Hover flashcard bị lớp xám che chữ
+
+Triệu chứng: rê chuột lên thẻ làm nội dung bị phủ xám. Nguyên nhân: nút HeroUI ghost trong suốt phủ toàn mặt vẫn có nền hover/pressed mặc định. Cách đúng: trigger phủ mặt đặt --button-bg, --button-bg-hover và --button-bg-pressed thành transparent, giữ focus bàn phím; dùng trigger riêng trên cả hai mặt để bấm đáp án cũng lật lại. Nút âm thanh là phần tử cùng cấp, có z-index cao hơn để không kích hoạt lật thẻ.

@@ -7,10 +7,8 @@ import {
   SrsReviewRunner,
   NotebookQuizView,
   defaultLearningClient,
-  defaultSrsSyncManager,
   type NotebookItem,
   type DueFlashcard,
-  type NotebookQuiz,
   type CreateNotebookItemInput,
   type NotebookItemKind,
 } from '../../../features/learning';
@@ -31,7 +29,9 @@ export default function NotebookPage(): React.JSX.Element {
   const [activeTab, setActiveTab] = useState<'notebook' | 'srs' | 'quiz'>('notebook');
   const [items, setItems] = useState<NotebookItem[]>([]);
   const [dueCards, setDueCards] = useState<DueFlashcard[]>([]);
-  const [activeQuiz, setActiveQuiz] = useState<NotebookQuiz | null>(null);
+  const [srsError, setSrsError] = useState<string | null>(null);
+  const [srsLoading, setSrsLoading] = useState(true);
+  const [preparingCards, setPreparingCards] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isUnauthorized, setIsUnauthorized] = useState(false);
@@ -53,12 +53,16 @@ export default function NotebookPage(): React.JSX.Element {
       setItems([]);
     }
 
+    setSrsLoading(true);
+    setSrsError(null);
     try {
-      const dueRes = await defaultLearningClient.getDueCards();
+      const dueRes = await defaultLearningClient.getDueCards(Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Ho_Chi_Minh', 1000);
       setDueCards(dueRes.items || []);
-    } catch {
+    } catch (err: unknown) {
+      setSrsError(err instanceof Error ? err.message : t('common.status.error'));
       setDueCards([]);
     } finally {
+      setSrsLoading(false);
       setLoading(false);
     }
   }, [t]);
@@ -66,6 +70,19 @@ export default function NotebookPage(): React.JSX.Element {
   useEffect(() => {
     loadNotebookData();
   }, [loadNotebookData]);
+
+  const handlePrepareCards = async () => {
+    setPreparingCards(true);
+    setSrsError(null);
+    try {
+      await defaultLearningClient.prepareNotebookCards();
+      await loadNotebookData();
+    } catch (err: unknown) {
+      setSrsError(err instanceof Error ? err.message : t('common.status.error'));
+    } finally {
+      setPreparingCards(false);
+    }
+  };
 
   const handleAddItem = async (input: CreateNotebookItemInput) => {
     setError(null);
@@ -140,50 +157,16 @@ export default function NotebookPage(): React.JSX.Element {
     }
   };
 
-  const handleStartQuiz = async () => {
-    if (!user) {
-      if (typeof window !== 'undefined') {
-        window.location.assign('/dang-nhap?redirect=/so-tay');
-      }
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    try {
-      const quiz = await defaultLearningClient.createNotebookQuiz({ count: 5 });
-      setActiveQuiz(quiz);
-      setActiveTab('quiz');
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
-      if (
-        msg.includes('401') ||
-        msg.includes('403') ||
-        msg.includes('UNAUTHENTICATED') ||
-        msg.includes('Yêu cầu đăng nhập') ||
-        msg.includes('Authentication required')
-      ) {
-        setIsUnauthorized(true);
-        if (typeof window !== 'undefined') {
-          window.location.assign('/dang-nhap?redirect=/so-tay');
-        }
-        return;
-      }
-      setError(msg || 'Không thể tạo quiz từ sổ tay. Vui lòng thêm từ vựng/ngữ pháp trước.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950/60">
-      <ExamHero
+      {activeTab !== 'notebook' && user ? <h1 className="sr-only">{t(activeTab === 'quiz' ? 'notebook.practice.title' : 'srs.title')}</h1> : <ExamHero
         title={t('notebook.page.title')}
         subtitle={t('notebook.page.subtitle')}
         minimal
         background="gradient"
-      />
+      />}
 
-      <div className="container py-8 w-full">
+      <div className={`container w-full ${activeTab !== 'notebook' ? 'py-4' : 'py-8'}`}>
         {(!user || isUnauthorized) && (
           <Alert className="mb-6" variant="warning">
           <div className="flex justify-between items-center flex-wrap gap-2">
@@ -208,7 +191,7 @@ export default function NotebookPage(): React.JSX.Element {
 
       {/* Navigation Tabs - only for signed in users */}
       {!(!user || isUnauthorized) && (
-        <div className="flex flex-wrap gap-2 border-b border-[var(--border-subtle)] mb-8"
+        <div className={`flex flex-wrap gap-2 border-b border-[var(--border-subtle)] ${activeTab !== 'notebook' ? 'mb-4' : 'mb-8'}`}
           role="tablist"
           aria-label={t('notebook.page.tabsAria')}
         >
@@ -245,10 +228,7 @@ export default function NotebookPage(): React.JSX.Element {
           aria-selected={activeTab === 'quiz'}
           aria-controls="panel-quiz"
           id="tab-quiz"
-          onClick={() => {
-            if (!activeQuiz) handleStartQuiz();
-            else setActiveTab('quiz');
-          }}
+          onClick={() => setActiveTab('quiz')}
           className={`-mb-px min-h-11 cursor-pointer rounded-none border-0 border-b-2 bg-transparent px-5 py-3 text-[0.9375rem] font-semibold ${activeTab === 'quiz' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-[var(--text-muted)]'}`}
         >
           <PencilLine className="inline size-4 align-[-2px]" aria-hidden="true" /> {t('notebook.tabs.quiz')}
@@ -354,24 +334,44 @@ export default function NotebookPage(): React.JSX.Element {
         </div>
       )}
 
-      {activeTab === 'srs' && (
+      {user && !isUnauthorized && activeTab === 'srs' && (
         <div id="panel-srs" role="tabpanel" aria-labelledby="tab-srs">
-          <SrsReviewRunner
+          {srsError ? (
+            <Alert variant="error">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <span>{srsError}</span>
+                <Button variant="outline" onClick={loadNotebookData}>{t('common.buttons.retry')}</Button>
+              </div>
+            </Alert>
+          ) : srsLoading || preparingCards ? (
+            <div role="status" className="flex items-center justify-center gap-3 py-12">
+              <Spinner size="md" />
+              <span>{t('common.status.loading')}</span>
+            </div>
+          ) : <SrsReviewRunner
             cards={dueCards}
-            syncManager={defaultSrsSyncManager}
+            onReset={loadNotebookData}
+            userId={user.id}
+            key={user.id}
             onFinish={() => {
               loadNotebookData();
               setActiveTab('notebook');
             }}
-          />
+          />}
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
+            <p className="text-sm text-[var(--text-secondary)]">{t('srs.prepare.description')}</p>
+            <Button variant="secondary" size="sm" onClick={handlePrepareCards} loading={preparingCards} disabled={loading || srsLoading}>
+              {t('srs.prepare.button')}
+            </Button>
+          </div>
         </div>
       )}
 
-        {activeTab === 'quiz' && activeQuiz && (
+        {user && !isUnauthorized && activeTab === 'quiz' && (
           <div id="panel-quiz" role="tabpanel" aria-labelledby="tab-quiz">
             <NotebookQuizView
-              quiz={activeQuiz}
-              onRetake={handleStartQuiz}
+              userId={user.id}
+              key={user.id}
               onExit={() => setActiveTab('notebook')}
             />
           </div>
