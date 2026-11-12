@@ -2,7 +2,7 @@
 
 # Database (tự sinh)
 
-Nguồn: `apps/api/src/db/schema.ts`. 143 bảng, 13 migration.
+Nguồn: `apps/api/src/db/schema.ts`. 144 bảng, 14 migration.
 Quy ước và cách thêm bảng: [DATABASE.md](DATABASE.md).
 
 ## Migration
@@ -20,6 +20,7 @@ Quy ước và cách thêm bảng: [DATABASE.md](DATABASE.md).
 - `0010_kanji_dataset.sql`
 - `0011_entry_meanings_gloss_order.sql`
 - `0012_entry_meanings_content_type.sql`
+- `0013_user_wrong_reasons.sql`
 
 ## Bảng
 
@@ -163,6 +164,7 @@ Quy ước và cách thêm bảng: [DATABASE.md](DATABASE.md).
 - [`user_profiles`](#user_profiles)
 - [`user_question_history`](#user_question_history)
 - [`user_skill_aggregates`](#user_skill_aggregates)
+- [`user_wrong_reasons`](#user_wrong_reasons)
 - [`users`](#users)
 - [`verifications`](#verifications)
 - [`vocab_occurrences`](#vocab_occurrences)
@@ -1731,6 +1733,16 @@ Quy ước và cách thêm bảng: [DATABASE.md](DATABASE.md).
 | `skill` | text | not null |  |
 | `accuracy_rate` | integer | not null |  |
 | `sample_size` | integer | not null |  |
+| `updated_at` | timestamp | not null |  |
+
+### user_wrong_reasons
+
+| Cột | Kiểu | Ràng buộc | Tham chiếu |
+|---|---|---|---|
+| `user_id` | uuid | not null | `users` |
+| `question_id` | uuid | not null | `questions` |
+| `reason` | text | not null |  |
+| `created_at` | timestamp | not null |  |
 | `updated_at` | timestamp | not null |  |
 
 ### users

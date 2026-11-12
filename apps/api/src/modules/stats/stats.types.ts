@@ -32,6 +32,15 @@ export interface ReadinessQueryDto {
   targetLevel?: 'N1' | 'N2' | 'N3' | 'N4' | 'N5';
 }
 
+export interface UserQuestionHistoryItemDto {
+  questionId: string;
+  isCorrect: boolean;
+  skill: string;
+  mondaiType?: string;
+  level: string;
+  answeredAt: string;
+}
+
 export interface AnalyticsReportDto {
   userId: string;
   skills: UserSkillStatsDto[];
@@ -41,6 +50,7 @@ export interface AnalyticsReportDto {
   answerChanges?: AnswerChangeAnalysis;
   unseenProgress?: UnseenProgressReport;
   trueProgress?: TrueProgressComparison;
+  questionHistory?: UserQuestionHistoryItemDto[];
   generatedAt: string;
 }
 

@@ -1,5 +1,14 @@
 import type { Level, Skill, MondaiType, SpeedAccuracyQuadrant, TrueProgressComparison } from '@jlpt/schema';
 
+export interface ScoredSectionSummary {
+  code: string;
+  name: string;
+  score: number;
+  maxScore: number;
+  minCutoff: number;
+  passed?: boolean;
+}
+
 export interface AttemptRecord {
   id: string;
   examId: string;
@@ -12,6 +21,8 @@ export interface AttemptRecord {
   passed: boolean;
   durationSec: number;
   submittedAt: string; // ISO date
+  status?: 'submitted' | 'in_progress' | 'timed_out';
+  sections?: ScoredSectionSummary[];
 }
 
 export interface QuestionAttemptRecord {

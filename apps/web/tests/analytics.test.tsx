@@ -26,6 +26,8 @@ import { StudyTimeWidget } from '../features/analytics/components/study-time-wid
 import { TargetProgressTracker } from '../features/analytics/components/target-progress-tracker';
 import { NextPriorityWidget } from '../features/analytics/components/next-priority-widget';
 import { AnalyticsDashboard } from '../features/analytics/components/analytics-dashboard';
+import { AnalyticsErrorAnalysis } from '../features/analytics/components/analytics-error-analysis';
+import { AnalyticsMistakeLibrary } from '../features/analytics/components/analytics-mistake-library';
 import type { AttemptRecord, QuestionAttemptRecord } from '../features/analytics/types';
 
 const renderClean = (element: React.JSX.Element): string =>
@@ -515,7 +517,7 @@ describe('Analytics, True Progress & Dashboard Hand-Calculation Suite (L03)', ()
   // 3. Composite Dashboard Integration
   // =========================================================================
 
-  it('renders the complete AnalyticsDashboard embedding all widgets without errors', () => {
+  it('renders the complete AnalyticsDashboard with every visible section and no hidden legacy widgets', () => {
     const html = renderClean(
       <AnalyticsDashboard
         attempts={TEST_ATTEMPTS}
@@ -526,15 +528,181 @@ describe('Analytics, True Progress & Dashboard Hand-Calculation Suite (L03)', ()
     );
 
     expect(html).toContain('data-testid="analytics-dashboard"');
-    expect(html).toContain('data-testid="true-progress-widget"');
-    expect(html).toContain('data-testid="target-progress-tracker"');
-    expect(html).toContain('data-testid="next-priority-widget"');
-    expect(html).toContain('data-testid="score-progression-chart"');
-    expect(html).toContain('data-testid="skill-accuracy-widget"');
-    expect(html).toContain('data-testid="speed-accuracy-widget"');
-    expect(html).toContain('data-testid="repeated-mistakes-widget"');
-    expect(html).toContain('data-testid="common-errors-widget"');
-    expect(html).toContain('data-testid="monthly-comparison-widget"');
-    expect(html).toContain('data-testid="study-time-widget"');
+    for (const id of ['overview', 'assessment', 'exam-plan', 'priority-matrix', 'progress', 'skills', 'history', 'activity']) {
+      expect(html).toContain(`id="${id}"`);
+    }
+    // the old screen-reader-only block with hard-coded text is gone
+    expect(html).not.toContain('sr-only');
+    expect(html).not.toContain('data-testid="true-progress-widget"');
+  });
+
+  it('ERROR-01: verifies AnalyticsErrorAnalysis renders honest empty states when no question attempts exist', () => {
+    const html = renderClean(
+      <AnalyticsErrorAnalysis
+        questionAttempts={[]}
+        onOpenStudyModal={() => {}}
+      />
+    );
+
+    // Mock numbers MUST NOT exist
+    expect(html).not.toContain('25/40 câu');
+    expect(html).not.toContain('17/25 câu');
+
+    // Honest empty states must be shown
+    expect(html).toContain('Chưa có dữ liệu câu sai để phân tích');
+    expect(html).toContain('Chưa ghi nhận nguyên nhân câu sai');
+  });
+
+  it('ERROR-02: verifies AnalyticsErrorAnalysis computes dynamic errors from real question attempts', () => {
+    const html = renderClean(
+      <AnalyticsErrorAnalysis
+        questionAttempts={TEST_QUESTION_ATTEMPTS}
+        onOpenStudyModal={() => {}}
+      />
+    );
+
+    // TEST_QUESTION_ATTEMPTS has kanji_reading error: 1 incorrect out of 2 items
+    expect(html).toContain('Cách đọc Hán tự');
+    expect(html).toContain('1/2 câu');
+    expect(html).toContain('50% sai');
+  });
+
+  it('MISTAKE-01: verifies AnalyticsMistakeLibrary renders empty state when user has 0 attempts and not demo', () => {
+    const html = renderClean(
+      <AnalyticsMistakeLibrary
+        attempts={[]}
+        questionAttempts={[]}
+        isDemoMode={false}
+        onOpenQuestionDetail={() => {}}
+        onReviewAll={() => {}}
+      />
+    );
+    expect(html).toContain('Chưa ghi nhận lỗi sai nào để tổng hợp');
+    expect(html).toContain('Làm đề thi thử ngay');
+    // Static mock data MUST NOT be rendered
+    expect(html).not.toContain('119');
+    expect(html).not.toContain('～ようにする');
+  });
+
+  it('MISTAKE-02: verifies AnalyticsMistakeLibrary computes real mistakes from user exam attempts', () => {
+    const sampleAttempts: AttemptRecord[] = [
+      {
+        id: 'att-1',
+        examId: 'ex-1',
+        examTitle: 'Đề thi JLPT N3 12/2024',
+        level: 'N3',
+        mode: 'real',
+        status: 'submitted',
+        totalScore: 75,
+        maxScore: 180,
+        accuracy: 41.7,
+        passed: false,
+        durationSec: 6200,
+        submittedAt: '2026-11-08T10:00:00Z',
+        sections: [
+          { code: 'language', name: 'Kiến thức ngôn ngữ', score: 25, maxScore: 60, minCutoff: 19, passed: true },
+          { code: 'reading', name: 'Đọc hiểu', score: 20, maxScore: 60, minCutoff: 19, passed: true },
+          { code: 'listening', name: 'Nghe hiểu', score: 30, maxScore: 60, minCutoff: 19, passed: true },
+        ],
+      },
+      {
+        id: 'att-2',
+        examId: 'ex-2',
+        examTitle: 'Đề thi JLPT N3 07/2024',
+        level: 'N3',
+        mode: 'real',
+        status: 'submitted',
+        totalScore: 80,
+        maxScore: 180,
+        accuracy: 44.4,
+        passed: false,
+        durationSec: 6100,
+        submittedAt: '2026-11-05T10:00:00Z',
+        sections: [
+          { code: 'language', name: 'Kiến thức ngôn ngữ', score: 28, maxScore: 60, minCutoff: 19, passed: true },
+          { code: 'reading', name: 'Đọc hiểu', score: 22, maxScore: 60, minCutoff: 19, passed: true },
+          { code: 'listening', name: 'Nghe hiểu', score: 30, maxScore: 60, minCutoff: 19, passed: true },
+        ],
+      },
+    ];
+
+    const html = renderClean(
+      <AnalyticsMistakeLibrary
+        attempts={sampleAttempts}
+        level="N3"
+        onOpenQuestionDetail={() => {}}
+        onReviewAll={() => {}}
+      />
+    );
+
+    expect(html).toContain('05 · BỘ SƯU TẬP LỖI SAI CÁ NHÂN');
+    expect(html).toContain('Kiến thức cần ôn');
+    // no fabricated template records: without real mistake data the list stays empty
+    expect(html).not.toContain('～ようにする');
+  });
+
+  it('MISTAKE-03: sample (demo) records offer no notebook button, so they can never be saved for real', () => {
+    const html = renderClean(
+      <AnalyticsMistakeLibrary
+        level="N3"
+        isDemoMode
+        onOpenQuestionDetail={() => {}}
+        onReviewAll={() => {}}
+      />,
+    );
+    expect(html).toContain('Xem câu sai');
+    expect(html).not.toContain('+ Sổ tay');
+  });
+
+  it('MISTAKE-02: shows only real mistakes of the selected level', () => {
+    const record = (term: string, level: string) => ({
+      term,
+      stem: `${term} の問題`,
+      level,
+      meaning: 'nghĩa',
+      wrong: 2,
+      total: 3,
+      streak: 1,
+      last: '08/11/2026',
+      source: `${level} · Đề thi`,
+      reason: 'r',
+      prompt: 'p',
+      selected: 's',
+      correct: 'c',
+      explain: 'e',
+    });
+    const html = renderClean(
+      <AnalyticsMistakeLibrary
+        level="N3"
+        isDemoMode={false}
+        attempts={[
+          {
+            id: 'a1',
+            examId: 'e1',
+            examTitle: 'Đề thi JLPT N3',
+            level: 'N3',
+            mode: 'real',
+            status: 'submitted',
+            totalScore: 50,
+            maxScore: 180,
+            accuracy: 27,
+            passed: false,
+            durationSec: 5000,
+            submittedAt: '2026-11-08T10:00:00Z',
+          },
+        ]}
+        mistakes={{
+          grammar: [record('ところが', 'N3'), record('ならでは', 'N1')],
+          vocab: [],
+          kanji: [],
+          question: [],
+        }}
+        totalErrors={2}
+        onOpenQuestionDetail={() => {}}
+        onReviewAll={() => {}}
+      />,
+    );
+    expect(html).toContain('ところが');
+    expect(html).not.toContain('ならでは');
   });
 });

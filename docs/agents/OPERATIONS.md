@@ -63,6 +63,26 @@ Quy tắc đã rút ra:
 - `BASE` là nhánh chưa ghép thì phải đẩy nhánh đó lên GitHub trước và `git fetch` mới nhất vào kho `paper-exam-20261024`; clone lấy bản cũ nếu kho cục bộ chưa cập nhật.
 - Mỗi clone `pnpm install` tốn khoảng 2 GB. Xong việc thì xóa `node_modules`, `.next`, `.turbo` trong clone.
 
+## Biến môi trường của dịch vụ web
+
+Các route `apps/web/app/internal-api/analytics/*` (trang Thống kê) đọc thẳng Postgres, nên dịch vụ web **bắt buộc có `DATABASE_URL`**. Code không còn giá trị mặc định: thiếu biến thì route báo lỗi `DATABASE_URL is not set`.
+
+- Giá trị nằm ở `/etc/jlpt/web-db.env` trên máy ảo (chủ `root:jlpt`, quyền 640). File này ngoài repo; không chép giá trị vào repo, tài liệu hay lệnh trong chat.
+- Mỗi dịch vụ web nạp file này bằng drop-in systemd `/etc/systemd/system/<tên>.service.d/db.conf`:
+
+```
+[Service]
+EnvironmentFile=/etc/jlpt/web-db.env
+```
+
+  Đã có drop-in cho `jlpt-preview-web` (:3000), `jlpt-preview-branch` (:3210), `jlpt-preview-3211`, `jlpt-paper-web`, `jlpt-notebook-practice-1110`, `jlpt-heroui-web`. Dịch vụ web mới phải thêm drop-in tương tự rồi `sudo systemctl daemon-reload` và restart; biến chỉ có hiệu lực sau khi dịch vụ khởi động lại.
+- Drop-in nằm ngoài `tools/ops/jlpt-preview-branch.service`, nên `preview-branch.sh` ghi đè file unit vẫn không làm mất biến.
+- Tiến trình web chạy tay (không qua systemd, ví dụ `next start` mở bằng `ssh`) không nhận biến này; muốn chạy thử route Thống kê thì `set -a; . /etc/jlpt/web-db.env; set +a` trước khi khởi động.
+- Đổi mật khẩu DB: sửa `/etc/jlpt/web-db.env` cùng nơi API và Postgres dùng, rồi restart các dịch vụ web ở trên.
+- Kiểm tra nhanh một dịch vụ: `systemctl show <tên> -p EnvironmentFiles` phải thấy `/etc/jlpt/web-db.env`, và `curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:<cổng>/internal-api/analytics/bank` phải ra 200.
+
+Migration `0013_user_wrong_reasons` (bảng lý do sai do người học chọn) phải được áp dụng trước khi bản có trang Thống kê này chạy trên DB mới; trên staging bảng đã được dựng sẵn.
+
 ## Triển khai API thủ công
 
 Timer `jlpt-preview-update` chỉ cập nhật web (:3000) và admin (:3001) theo `main`. **API không tự cập nhật.** Ghép PR có sửa `apps/api` hoặc `packages/schema` xong thì API trên VM vẫn là bản cũ, web mới gọi đường mà API chưa có (ví dụ lỗi `Cannot POST /api/v1/guest/attempts`).

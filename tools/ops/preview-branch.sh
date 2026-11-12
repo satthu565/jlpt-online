@@ -44,6 +44,8 @@ echo "== Cài dependency"; pnpm install --frozen-lockfile --prefer-offline >/tmp
 echo "== Build web (vài phút)"; pnpm turbo run build --filter=@jlpt/web... >>/tmp/jlpt-preview-branch.log 2>&1 || { tail -30 /tmp/jlpt-preview-branch.log; echo "Build lỗi, bản xem thử cũ (nếu có) giữ nguyên." >&2; exit 1; }
 
 echo "== Chạy trên cổng $PORT (qua nginx)"
+sudo -n cp "$DIR/tools/ops/jlpt-preview-branch.service" /etc/systemd/system/jlpt-preview-branch.service
+sudo -n systemctl daemon-reload
 sudo -n systemctl restart jlpt-preview-branch
 for i in $(seq 1 30); do
   code=$(curl -s -o /dev/null -m 5 -w '%{http_code}' "http://127.0.0.1:1${PORT}/" || true)

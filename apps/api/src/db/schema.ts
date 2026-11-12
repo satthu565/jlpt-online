@@ -671,6 +671,23 @@ export const questionMarks = pgTable(
   (t) => [primaryKey({ columns: [t.userId, t.questionId, t.markType] })],
 );
 
+/** Reason a learner gives for a question they answered wrong (statistics page, section 06). */
+export const userWrongReasons = pgTable(
+  'user_wrong_reasons',
+  {
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    questionId: uuid('question_id')
+      .notNull()
+      .references(() => questions.id, { onDelete: 'cascade' }),
+    reason: text('reason').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.questionId] })],
+);
+
 export const examFavorites = pgTable(
   'exam_favorites',
   {

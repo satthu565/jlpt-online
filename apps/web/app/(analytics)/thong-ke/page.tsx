@@ -5,6 +5,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { AnalyticsDashboard } from '../../../features/analytics';
 import type { AttemptRecord, QuestionAttemptRecord } from '../../../features/analytics/types';
+import type { MistakeRecord } from '../../../features/analytics/components/analytics-mistake-library';
+import type { IntelligenceItem, ConfusedPair, MasterySummary, TimedSummary } from '../../../features/analytics/components/analytics-mistake-intelligence';
+import type { ActivityData, BankStats, DifficultyData, LevelContent, ExamMeta, MondaiStatsByLevel, ScheduleItem } from '../../../features/analytics/bank';
 import type { Level, Skill, MondaiType } from '@jlpt/schema';
 import { ExamHero } from '../../../features/library';
 import { useAuth } from '../../../lib/auth-context';
@@ -70,40 +73,193 @@ const DEMO_ATTEMPTS: AttemptRecord[] = [
 ];
 
 const DEMO_QUESTIONS: QuestionAttemptRecord[] = [
-  // 12 Unseen questions
-  { questionId: 'demo-q1', questionNumber: '1', stemPreview: '彼女の意見には賛成しかねる。', level: 'N3', skill: 'grammar', isCorrect: true, timeSpentMs: 45000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-q2', questionNumber: '2', stemPreview: '会議の書類をあらかじめ印刷しておいた。', level: 'N3', skill: 'vocabulary', isCorrect: true, timeSpentMs: 35000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-q3', questionNumber: '3', stemPreview: 'この製品は環境に配慮して作られている。', level: 'N3', skill: 'kanji', isCorrect: true, timeSpentMs: 25000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-q4', questionNumber: '4', stemPreview: '試験の結果を気に病むことはない。', level: 'N3', skill: 'vocabulary', isCorrect: true, timeSpentMs: 40000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-q5', questionNumber: '5', stemPreview: '筆者が最も主張したいことは何か。', level: 'N3', skill: 'reading', isCorrect: true, timeSpentMs: 110000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-q6', questionNumber: '6', stemPreview: 'このグラフから読み取れる傾向はどれか。', level: 'N3', skill: 'reading', isCorrect: false, timeSpentMs: 130000, exposureCount: 0, errorCategory: 'time_pressure', submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-q7', questionNumber: '7', stemPreview: '男の人はこれからまず何をしますか。', level: 'N3', skill: 'listening', isCorrect: false, timeSpentMs: 60000, exposureCount: 0, errorCategory: 'listening_distractor', submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-q8', questionNumber: '8', stemPreview: '女の人が一番困っている理由は何ですか。', level: 'N3', skill: 'listening', isCorrect: false, timeSpentMs: 60000, exposureCount: 0, errorCategory: 'listening_distractor', submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-q9', questionNumber: '9', stemPreview: '天候のせいで旅行が中止になりかねない。', level: 'N3', skill: 'grammar', isCorrect: true, timeSpentMs: 38000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-q10', questionNumber: '10', stemPreview: '計画を慎重に進める必要がある。', level: 'N3', skill: 'kanji', isCorrect: true, timeSpentMs: 30000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-q11', questionNumber: '11', stemPreview: '午後からの会議について相談があるのですが。', level: 'N3', skill: 'listening', isCorrect: true, timeSpentMs: 50000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-q12', questionNumber: '12', stemPreview: '本文の内容と一致しているものはどれか。', level: 'N3', skill: 'reading', isCorrect: true, timeSpentMs: 95000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  // 1. Reading: Comprehension Long (4 items, 2 incorrect)
+  { questionId: 'demo-rl1', questionNumber: '1', stemPreview: '筆者が考える「本当の豊かさ」とは何か。', level: 'N3', skill: 'reading', mondaiType: 'comprehension_long', isCorrect: false, timeSpentMs: 125000, exposureCount: 0, errorCategory: 'time_pressure', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-rl2', questionNumber: '2', stemPreview: '本文で「この現象」とあるが、具体的に何を指しているか。', level: 'N3', skill: 'reading', mondaiType: 'comprehension_long', isCorrect: false, timeSpentMs: 118000, exposureCount: 0, errorCategory: 'vocab_nuance', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-rl3', questionNumber: '3', stemPreview: '段落の論理展開と合致する記述はどれか。', level: 'N3', skill: 'reading', mondaiType: 'comprehension_long', isCorrect: true, timeSpentMs: 95000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-rl4', questionNumber: '4', stemPreview: '筆者の結論として最も適切なものはどれか。', level: 'N3', skill: 'reading', mondaiType: 'comprehension_long', isCorrect: true, timeSpentMs: 105000, exposureCount: 1, submittedAt: '2026-10-30T16:00:00Z' },
 
-  // 6 Familiar repeat questions (demonstrating genuine retention)
-  { questionId: 'demo-f1', questionNumber: '13', stemPreview: '男の人は明日何時に集合しますか。', level: 'N3', skill: 'listening', isCorrect: true, timeSpentMs: 48000, exposureCount: 2, submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-f2', questionNumber: '14', stemPreview: '彼の話は信じるに足らない。', level: 'N3', skill: 'grammar', isCorrect: true, timeSpentMs: 32000, exposureCount: 1, submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-f3', questionNumber: '15', stemPreview: '約束の時間を勘違いしていた。', level: 'N3', skill: 'vocabulary', isCorrect: true, timeSpentMs: 28000, exposureCount: 1, submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-f4', questionNumber: '16', stemPreview: '男の人はなぜ遅刻したと言っていますか。', level: 'N3', skill: 'listening', isCorrect: false, timeSpentMs: 55000, exposureCount: 2, errorCategory: 'listening_distractor', submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-f5', questionNumber: '17', stemPreview: '筆者が考える幸福の条件とは何か。', level: 'N3', skill: 'reading', isCorrect: true, timeSpentMs: 85000, exposureCount: 1, submittedAt: '2026-10-30T16:00:00Z' },
-  { questionId: 'demo-f6', questionNumber: '18', stemPreview: '経済状況の悪化に伴って求人が減った。', level: 'N3', skill: 'grammar', isCorrect: true, timeSpentMs: 30000, exposureCount: 2, submittedAt: '2026-10-30T16:00:00Z' },
+  // 2. Reading: Information Retrieval (3 items, 2 incorrect)
+  { questionId: 'demo-ir1', questionNumber: '5', stemPreview: '図書館の休館日と開館時間の組み合わせで正しいもの。', level: 'N3', skill: 'reading', mondaiType: 'info_retrieval', isCorrect: false, timeSpentMs: 95000, exposureCount: 0, errorCategory: 'time_pressure', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-ir2', questionNumber: '6', stemPreview: '割引キャンペーンの適用条件を満たす人物は誰か。', level: 'N3', skill: 'reading', mondaiType: 'info_retrieval', isCorrect: false, timeSpentMs: 110000, exposureCount: 0, errorCategory: 'time_pressure', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-ir3', questionNumber: '7', stemPreview: '案内チラシの連絡先と申込期限について。', level: 'N3', skill: 'reading', mondaiType: 'info_retrieval', isCorrect: true, timeSpentMs: 70000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+
+  // 3. Grammar: Sentence Composition (4 items, 2 incorrect)
+  { questionId: 'demo-sc1', questionNumber: '8', stemPreview: 'どんなに忙しくても、健康のために ★ ようにしている。', level: 'N3', skill: 'grammar', mondaiType: 'sentence_composition', isCorrect: false, timeSpentMs: 55000, exposureCount: 0, errorCategory: 'grammar_trap', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-sc2', questionNumber: '9', stemPreview: '彼が約束を破る ★ 信じられない。', level: 'N3', skill: 'grammar', mondaiType: 'sentence_composition', isCorrect: false, timeSpentMs: 62000, exposureCount: 0, errorCategory: 'grammar_trap', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-sc3', questionNumber: '10', stemPreview: '経済の悪化に伴って ★ 減少した。', level: 'N3', skill: 'grammar', mondaiType: 'sentence_composition', isCorrect: true, timeSpentMs: 45000, exposureCount: 1, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-sc4', questionNumber: '11', stemPreview: '雨が降らない ★ 傘を持っていこう。', level: 'N3', skill: 'grammar', mondaiType: 'sentence_composition', isCorrect: true, timeSpentMs: 38000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+
+  // 4. Listening: Summary Understanding (4 items, 2 incorrect)
+  { questionId: 'demo-su1', questionNumber: '12', stemPreview: 'スピーチの全体を通して、話者が最も伝えたいこと。', level: 'N3', skill: 'listening', mondaiType: 'summary', isCorrect: false, timeSpentMs: 60000, exposureCount: 0, errorCategory: 'listening_distractor', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-su2', questionNumber: '13', stemPreview: '会議で提案された新方針の要点は何か。', level: 'N3', skill: 'listening', mondaiType: 'summary', isCorrect: false, timeSpentMs: 60000, exposureCount: 0, errorCategory: 'listening_distractor', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-su3', questionNumber: '14', stemPreview: 'ラジオ放送で紹介された町の取り組みの概要。', level: 'N3', skill: 'listening', mondaiType: 'summary', isCorrect: true, timeSpentMs: 55000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-su4', questionNumber: '15', stemPreview: '大学の講義で教授が述べている研究の主旨。', level: 'N3', skill: 'listening', mondaiType: 'summary', isCorrect: true, timeSpentMs: 50000, exposureCount: 1, submittedAt: '2026-10-30T16:00:00Z' },
+
+  // 5. Vocabulary: Contextual Usage (5 items, 2 incorrect)
+  { questionId: 'demo-cx1', questionNumber: '16', stemPreview: '約束の時間を勘違いして、友人を待たせてしまった。', level: 'N3', skill: 'vocabulary', mondaiType: 'contextual', isCorrect: false, timeSpentMs: 38000, exposureCount: 0, errorCategory: 'vocab_nuance', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-cx2', questionNumber: '17', stemPreview: '会議の資料をあらかじめ印刷して配付した。', level: 'N3', skill: 'vocabulary', mondaiType: 'contextual', isCorrect: false, timeSpentMs: 42000, exposureCount: 0, errorCategory: 'vocab_nuance', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-cx3', questionNumber: '18', stemPreview: 'この地域は観光業が盛んで、多くの人が訪れる。', level: 'N3', skill: 'vocabulary', mondaiType: 'contextual', isCorrect: true, timeSpentMs: 28000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-cx4', questionNumber: '19', stemPreview: 'プロジェクトのスケジュールを慎重に管理する。', level: 'N3', skill: 'vocabulary', mondaiType: 'contextual', isCorrect: true, timeSpentMs: 25000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-cx5', questionNumber: '20', stemPreview: '試験の結果を気に病むことはない。', level: 'N3', skill: 'vocabulary', mondaiType: 'contextual', isCorrect: true, timeSpentMs: 30000, exposureCount: 1, submittedAt: '2026-10-30T16:00:00Z' },
+
+  // 6. Grammar: Grammar Form (5 items, 2 incorrect)
+  { questionId: 'demo-gf1', questionNumber: '21', stemPreview: '彼女の意見には賛成しかねる。', level: 'N3', skill: 'grammar', mondaiType: 'grammar_form', isCorrect: false, timeSpentMs: 40000, exposureCount: 0, errorCategory: 'grammar_trap', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-gf2', questionNumber: '22', stemPreview: '天候のせいで旅行が中止になりかねない。', level: 'N3', skill: 'grammar', mondaiType: 'grammar_form', isCorrect: false, timeSpentMs: 46000, exposureCount: 0, errorCategory: 'grammar_trap', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-gf3', questionNumber: '23', stemPreview: '彼の話は信じるに足らない。', level: 'N3', skill: 'grammar', mondaiType: 'grammar_form', isCorrect: true, timeSpentMs: 32000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-gf4', questionNumber: '24', stemPreview: 'これだけ練習したのだから、合格するに違いない。', level: 'N3', skill: 'grammar', mondaiType: 'grammar_form', isCorrect: true, timeSpentMs: 28000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-gf5', questionNumber: '25', stemPreview: 'この製品は環境に配慮して作られている。', level: 'N3', skill: 'grammar', mondaiType: 'grammar_form', isCorrect: true, timeSpentMs: 35000, exposureCount: 1, submittedAt: '2026-10-30T16:00:00Z' },
+
+  // 7. Listening: Task Based & Quick Response (6 items, 2 incorrect)
+  { questionId: 'demo-tb1', questionNumber: '26', stemPreview: '男の人はこれからまず何をしますか。', level: 'N3', skill: 'listening', mondaiType: 'task_based', isCorrect: false, timeSpentMs: 58000, exposureCount: 0, errorCategory: 'listening_distractor', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-qr1', questionNumber: '27', stemPreview: '「昨日の映画、どうだった？」「それが、★」', level: 'N3', skill: 'listening', mondaiType: 'quick_response', isCorrect: false, timeSpentMs: 40000, exposureCount: 0, errorCategory: 'listening_distractor', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-tb2', questionNumber: '28', stemPreview: '女の人は明日何を持参しなければなりませんか。', level: 'N3', skill: 'listening', mondaiType: 'task_based', isCorrect: true, timeSpentMs: 50000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-qr2', questionNumber: '29', stemPreview: '「この書類、確認してもらえませんか。」「★」', level: 'N3', skill: 'listening', mondaiType: 'quick_response', isCorrect: true, timeSpentMs: 30000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-tb3', questionNumber: '30', stemPreview: '集合時間と場所について確認する。', level: 'N3', skill: 'listening', mondaiType: 'task_based', isCorrect: true, timeSpentMs: 48000, exposureCount: 1, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-qr3', questionNumber: '31', stemPreview: '「お待たせして申し訳ありませんでした。」「★」', level: 'N3', skill: 'listening', mondaiType: 'quick_response', isCorrect: true, timeSpentMs: 32000, exposureCount: 1, submittedAt: '2026-10-30T16:00:00Z' },
+
+  // 8. Kanji: Kanji Reading & Orthography (6 items, 2 incorrect)
+  { questionId: 'demo-kr1', questionNumber: '32', stemPreview: 'この計画を「慎重」に進める必要がある。', level: 'N3', skill: 'kanji', mondaiType: 'kanji_reading', isCorrect: false, timeSpentMs: 32000, exposureCount: 0, errorCategory: 'kanji_confusion', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-ot1', questionNumber: '33', stemPreview: '書類を「はいふ」してください。', level: 'N3', skill: 'kanji', mondaiType: 'orthography', isCorrect: false, timeSpentMs: 36000, exposureCount: 0, errorCategory: 'kanji_confusion', submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-kr2', questionNumber: '34', stemPreview: '環境に「配慮」する。', level: 'N3', skill: 'kanji', mondaiType: 'kanji_reading', isCorrect: true, timeSpentMs: 24000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-ot2', questionNumber: '35', stemPreview: '結果を「きろく」に残す。', level: 'N3', skill: 'kanji', mondaiType: 'orthography', isCorrect: true, timeSpentMs: 25000, exposureCount: 0, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-kr3', questionNumber: '36', stemPreview: '「盛ん」な産業。', level: 'N3', skill: 'kanji', mondaiType: 'kanji_reading', isCorrect: true, timeSpentMs: 22000, exposureCount: 1, submittedAt: '2026-10-30T16:00:00Z' },
+  { questionId: 'demo-ot3', questionNumber: '37', stemPreview: '会場を「せつえい」する。', level: 'N3', skill: 'kanji', mondaiType: 'orthography', isCorrect: true, timeSpentMs: 26000, exposureCount: 1, submittedAt: '2026-10-30T16:00:00Z' },
 ];
+
+const MAX_ATTEMPT_PAGES = 20;
+
+function toExamMetas(items: Record<string, unknown>[]): ExamMeta[] {
+  const metas: ExamMeta[] = [];
+  for (const ex of items) {
+    if (!ex['id'] || !ex['slug']) continue;
+    metas.push({
+      id: String(ex['id']),
+      slug: String(ex['slug']),
+      title: String(ex['title'] || ''),
+      level: String(ex['level'] || ''),
+      year: Number(ex['year']) || 0,
+      session: String(ex['session'] ?? ''),
+    });
+  }
+  return metas;
+}
+
+async function fetchAllAttempts(
+  baseUrl: string,
+  headers: Record<string, string>,
+): Promise<{ ok: boolean; status: number; items: Record<string, unknown>[] }> {
+  const items: Record<string, unknown>[] = [];
+  let cursor: string | null = null;
+  for (let page = 0; page < MAX_ATTEMPT_PAGES; page++) {
+    const qs: string = cursor ? `?cursor=${encodeURIComponent(cursor)}` : '';
+    const res: Response = await fetch(`${baseUrl}/me/attempts${qs}`, { headers, credentials: 'include' });
+    if (!res.ok) return { ok: false, status: res.status, items };
+    const data = (await res.json()) as
+      | Record<string, unknown>[]
+      | { items?: Record<string, unknown>[]; nextCursor?: string | null };
+    items.push(...(Array.isArray(data) ? data : data.items || []));
+    cursor = Array.isArray(data) ? null : data.nextCursor || null;
+    if (!cursor) break;
+  }
+  return { ok: true, status: 200, items };
+}
 
 export default function AnalyticsPage(): React.JSX.Element {
   const { user, session, isLoading: authLoading } = useAuth();
   const token = session?.token;
   const { t } = useI18n();
 
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [isUnauthorized, setIsUnauthorized] = useState<boolean>(false);
   const [attempts, setAttempts] = useState<AttemptRecord[]>([]);
   const [questionAttempts, setQuestionAttempts] = useState<QuestionAttemptRecord[]>([]);
-  const [isDemoMode, setIsDemoMode] = useState<boolean>(false);
+  const [skillAggregates, setSkillAggregates] = useState<Array<{ skill: string; accuracyRate: number; sampleSize: number }>>([]);
+  const [realMistakes, setRealMistakes] = useState<Record<string, MistakeRecord[]> | undefined>();
+  const [realTotalWrongCount, setRealTotalWrongCount] = useState<number | undefined>();
+  const [realStatsBySkillByLevel, setRealStatsBySkillByLevel] = useState<Record<string, Record<string, { wrong: number; total: number; blank?: number }>> | undefined>();
+  const [realCoverageByLevel, setRealCoverageByLevel] = useState<Record<string, IntelligenceItem[]> | undefined>();
+  const [realPairsByLevel, setRealPairsByLevel] = useState<Record<string, ConfusedPair[]> | undefined>();
+  const [realMasteryByLevel, setRealMasteryByLevel] = useState<Record<string, MasterySummary> | undefined>();
+  const [realReasonsByLevel, setRealReasonsByLevel] = useState<Record<string, IntelligenceItem[]> | undefined>();
+  const [realTrapsByLevel, setRealTrapsByLevel] = useState<Record<string, IntelligenceItem[]> | undefined>();
+  const [realTimedWeaknessByLevel, setRealTimedWeaknessByLevel] = useState<Record<string, TimedSummary> | undefined>();
+  const [realMondaiStatsByLevel, setRealMondaiStatsByLevel] = useState<MondaiStatsByLevel | undefined>();
+  const [bank, setBank] = useState<BankStats | undefined>();
+  const [activity, setActivity] = useState<ActivityData | undefined>();
+  const [examMetas, setExamMetas] = useState<ExamMeta[]>([]);
+  const [schedules, setSchedules] = useState<ScheduleItem[]>([]);
+  const [content, setContent] = useState<Record<string, LevelContent> | undefined>();
+  const [difficulty, setDifficulty] = useState<DifficultyData | undefined>();
+  const [isDemoMode, setIsDemoMode] = useState<boolean>(true);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const applyMistakes = useCallback((mistakesData: any) => {
+    if (mistakesData.mistakes) {
+      setRealMistakes(mistakesData.mistakes);
+    }
+    if (typeof mistakesData.totalWrongCount === 'number') {
+      setRealTotalWrongCount(mistakesData.totalWrongCount);
+    }
+    if (mistakesData.statsBySkillByLevel) {
+      setRealStatsBySkillByLevel(mistakesData.statsBySkillByLevel);
+    }
+    if (mistakesData.coverageByLevel) {
+      setRealCoverageByLevel(mistakesData.coverageByLevel);
+    }
+    if (mistakesData.pairsByLevel) {
+      setRealPairsByLevel(mistakesData.pairsByLevel);
+    }
+    if (mistakesData.masteryByLevel) {
+      setRealMasteryByLevel(mistakesData.masteryByLevel);
+    }
+    {
+      // reasons the learner chose themselves come first, then the system's inference
+      const self = mistakesData.selfReasonsByLevel ?? {};
+      const inferred = mistakesData.reasonsByLevel ?? {};
+      const merged: Record<string, IntelligenceItem[]> = {};
+      for (const lvl of new Set([...Object.keys(self), ...Object.keys(inferred)])) {
+        merged[lvl] = [...(self[lvl] ?? []), ...(inferred[lvl] ?? [])];
+      }
+      setRealReasonsByLevel(merged);
+    }
+    if (mistakesData.trapsByLevel) {
+      setRealTrapsByLevel(mistakesData.trapsByLevel);
+    }
+    if (mistakesData.timedWeaknessByLevel) {
+      setRealTimedWeaknessByLevel(mistakesData.timedWeaknessByLevel);
+    }
+    if (mistakesData.mondaiStatsByLevel) {
+      setRealMondaiStatsByLevel(mistakesData.mondaiStatsByLevel);
+    }
+  }, []);
+
+  const reloadMistakes = useCallback(async () => {
+    try {
+      const res = await fetch('/internal-api/analytics/mistakes', {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        credentials: 'include',
+      });
+      if (res.ok) applyMistakes(await res.json());
+    } catch {
+      // keep the data already shown
+    }
+  }, [applyMistakes, token]);
+
+  const saveReason = useCallback(
+    async (questionId: string, reason: string | null) => {
+      const res = await fetch('/internal-api/analytics/reasons', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        credentials: 'include',
+        body: JSON.stringify({ questionId, reason }),
+      });
+      if (!res.ok) throw new Error('save reason failed');
+      await reloadMistakes();
+    },
+    [token, reloadMistakes],
+  );
 
   const fetchAnalyticsData = useCallback(async () => {
     if (authLoading) return;
@@ -113,6 +269,17 @@ export default function AnalyticsPage(): React.JSX.Element {
       setIsUnauthorized(true);
       setAttempts([]);
       setQuestionAttempts([]);
+      // The exam list is public: guests still see the exam-bank progress grid.
+      const guestBaseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api/v1').replace(/\/$/, '');
+      try {
+        const res = await fetch(`${guestBaseUrl}/exams?limit=100`, { credentials: 'include' });
+        if (res.ok) {
+          const data = await res.json();
+          setExamMetas(toExamMetas(Array.isArray(data) ? data : data.items || []));
+        }
+      } catch {
+        // keep the grid's empty state
+      }
       return;
     }
 
@@ -129,15 +296,18 @@ export default function AnalyticsPage(): React.JSX.Element {
     }
 
     try {
-      const [attemptsRes, analyticsRes] = await Promise.all([
-        fetch(`${baseUrl}/me/attempts`, {
-          headers,
-          credentials: 'include',
-        }),
+      const [attemptsRes, analyticsRes, examsRes, mistakesRes, activityRes] = await Promise.all([
+        fetchAllAttempts(baseUrl, headers),
         fetch(`${baseUrl}/me/analytics?targetLevel=${encodeURIComponent(user.targetLevel || 'N3')}`, {
           headers,
           credentials: 'include',
         }),
+        fetch(`${baseUrl}/exams?limit=100`, {
+          headers,
+          credentials: 'include',
+        }),
+        fetch('/internal-api/analytics/mistakes', { headers, credentials: 'include' }).catch(() => null),
+        fetch('/internal-api/analytics/activity', { headers, credentials: 'include' }).catch(() => null),
       ]);
 
       if (attemptsRes.status === 401 || attemptsRes.status === 403 || analyticsRes.status === 401 || analyticsRes.status === 403) {
@@ -146,50 +316,141 @@ export default function AnalyticsPage(): React.JSX.Element {
         return;
       }
 
+      const examsMap = new Map<string, { title: string; level: Level }>();
+      if (examsRes && examsRes.ok) {
+        try {
+          const examsData = await examsRes.json();
+          const examItems = Array.isArray(examsData) ? examsData : (examsData.items || []);
+          examItems.forEach((ex: Record<string, unknown>) => {
+            if (ex['id']) {
+              examsMap.set(String(ex['id']), {
+                title: String(ex['title'] || ''),
+                level: (ex['level'] as Level) || 'N3',
+              });
+            }
+          });
+          setExamMetas(toExamMetas(examItems));
+        } catch {
+          // Ignore exams parse error
+        }
+      }
+
+      if (mistakesRes && mistakesRes.ok) {
+        try {
+          const mistakesData = await mistakesRes.json();
+          applyMistakes(mistakesData);
+        } catch {
+          // Ignore mistakes parse error
+        }
+      }
+
+      if (activityRes && activityRes.ok) {
+        try {
+          setActivity((await activityRes.json()) as ActivityData);
+        } catch {
+          // Ignore activity parse error
+        }
+      }
+
       let loadedAttempts: AttemptRecord[] = [];
       if (attemptsRes.ok) {
-        const attemptsData = await attemptsRes.json();
-        const rawItems = Array.isArray(attemptsData) ? attemptsData : (attemptsData.items || []);
+        const rawItems = attemptsRes.items;
         loadedAttempts = rawItems.map((att: Record<string, unknown>) => {
+          const examId = String(att['examId'] || '');
+          const examMeta = examsMap.get(examId);
+
+          const status = String(att['status'] || (att['submittedAt'] ? 'submitted' : 'in_progress')) as 'submitted' | 'in_progress';
+          const isSubmitted = status === 'submitted' || Boolean(att['submittedAt']);
+
           const score = typeof att['score'] === 'number' ? att['score'] : 0;
+          const level = (examMeta?.level || att['level'] || user.targetLevel || 'N3') as Level;
+          const examTitle = examMeta?.title || String(att['examTitle'] || `Đề thi JLPT ${level} (${String(att['id']).slice(0, 8)})`);
+
+          let durationSec = typeof att['durationSec'] === 'number' ? att['durationSec'] : 0;
+          if (!durationSec && isSubmitted && att['startedAt'] && att['submittedAt']) {
+            const start = new Date(att['startedAt'] as string).getTime();
+            const end = new Date(att['submittedAt'] as string).getTime();
+            const MAX_EXAM_SEC = 3 * 3600; // longer gaps mean the session was left open, not that the exam took that long
+            if (end > start && end - start <= MAX_EXAM_SEC * 1000) {
+              durationSec = Math.round((end - start) / 1000);
+            }
+          }
+
+          const rawSections = Array.isArray(att['sections']) ? (att['sections'] as Record<string, unknown>[]) : [];
+          const parsedSections = rawSections.map((s) => ({
+            code: String(s['code'] || ''),
+            name: String(s['label'] || s['name'] || s['code'] || ''),
+            score: typeof s['scaled'] === 'number' ? s['scaled'] : (typeof s['score'] === 'number' ? s['score'] : 0),
+            maxScore: typeof s['maxScaled'] === 'number' ? s['maxScaled'] : (typeof s['maxScore'] === 'number' ? s['maxScore'] : 60),
+            minCutoff: typeof s['minPass'] === 'number' ? s['minPass'] : (typeof s['minCutoff'] === 'number' ? s['minCutoff'] : 19),
+            passed: Boolean(s['passed']),
+          }));
+
+          const accuracy = isSubmitted && score > 0 ? Math.round((score / 180) * 1000) / 10 : 0;
+
           return {
             id: String(att['id']),
-            examId: String(att['examId'] || ''),
-            examTitle: String(att['examTitle'] || `Đề thi JLPT ${att['mode'] === 'real' ? 'chính thức' : 'luyện tập'} (${String(att['id']).slice(0, 8)})`),
-            level: ((att['level'] || user.targetLevel || 'N3') as Level),
+            examId,
+            examTitle,
+            level,
             mode: att['mode'] === 'real' ? 'real' : 'practice',
+            status,
             totalScore: score,
             maxScore: 180,
-            accuracy: Math.round((score / 180) * 1000) / 10,
+            accuracy,
             passed: Boolean(att['passed']),
-            durationSec: typeof att['durationSec'] === 'number' ? att['durationSec'] : 0,
+            durationSec,
             submittedAt: String(att['submittedAt'] || att['startedAt'] || new Date().toISOString()),
+            sections: parsedSections,
           };
         });
       }
 
       let loadedQuestionAttempts: QuestionAttemptRecord[] = [];
+      let loadedSkills: Array<{ skill: string; accuracyRate: number; sampleSize: number }> = [];
       if (analyticsRes.ok) {
         const analyticsData = await analyticsRes.json();
-        if (Array.isArray(analyticsData.questionHistory)) {
-          loadedQuestionAttempts = analyticsData.questionHistory.map((q: Record<string, unknown>, idx: number) => ({
-            questionId: String(q['questionId'] || `q-${idx}`),
-            questionNumber: String(q['questionNumber'] || idx + 1),
-            stemPreview: typeof q['stemPreview'] === 'string' ? q['stemPreview'] : undefined,
-            level: ((q['level'] || user.targetLevel || 'N3') as Level),
-            skill: ((q['skill'] || 'vocabulary') as Skill),
-            mondaiType: q['mondaiType'] as MondaiType | undefined,
-            isCorrect: Boolean(q['isCorrect']),
-            timeSpentMs: typeof q['timeSpentMs'] === 'number' ? q['timeSpentMs'] : 60000,
-            exposureCount: typeof q['exposureCount'] === 'number' ? q['exposureCount'] : 0,
-            errorCategory: q['errorCategory'] as QuestionAttemptRecord['errorCategory'],
-            submittedAt: String(q['submittedAt'] || new Date().toISOString()),
+        if (Array.isArray(analyticsData.skills)) {
+          loadedSkills = analyticsData.skills.map((s: Record<string, unknown>) => ({
+            skill: String(s['skill'] || ''),
+            accuracyRate: typeof s['accuracyRate'] === 'number' ? s['accuracyRate'] : 0,
+            sampleSize: typeof s['sampleSize'] === 'number' ? s['sampleSize'] : 0,
           }));
+        }
+        if (Array.isArray(analyticsData.questionHistory)) {
+          loadedQuestionAttempts = analyticsData.questionHistory.map((q: Record<string, unknown>, idx: number) => {
+            const isCorrect = Boolean(q['isCorrect']);
+            const skill = ((q['skill'] || 'vocabulary') as Skill);
+            let errorCategory = q['errorCategory'] as QuestionAttemptRecord['errorCategory'];
+            if (!errorCategory && !isCorrect) {
+              if (skill === 'grammar') errorCategory = 'grammar_trap';
+              else if (skill === 'reading') errorCategory = 'time_pressure';
+              else if (skill === 'vocabulary') errorCategory = 'vocab_nuance';
+              else if (skill === 'kanji') errorCategory = 'kanji_confusion';
+              else if (skill === 'listening') errorCategory = 'listening_distractor';
+            }
+            return {
+              questionId: String(q['questionId'] || `q-${idx}`),
+              questionNumber: String(q['questionNumber'] || idx + 1),
+              stemPreview: typeof q['stemPreview'] === 'string' ? q['stemPreview'] : undefined,
+              level: ((q['level'] || user.targetLevel || 'N3') as Level),
+              skill,
+              mondaiType: q['mondaiType'] as MondaiType | undefined,
+              isCorrect,
+              timeSpentMs: typeof q['timeSpentMs'] === 'number' ? q['timeSpentMs'] : 60000,
+              exposureCount: typeof q['exposureCount'] === 'number' ? q['exposureCount'] : 0,
+              errorCategory,
+              submittedAt: String(q['submittedAt'] || q['answeredAt'] || new Date().toISOString()),
+            };
+          });
         }
       }
 
+      setSkillAggregates(loadedSkills);
       setAttempts(loadedAttempts);
       setQuestionAttempts(loadedQuestionAttempts);
+      // signed-in learners always see their own (possibly empty) data; sample data is opt-in
+      setIsDemoMode(false);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Không thể kết nối máy chủ phân tích';
       setError(msg);
@@ -197,6 +458,47 @@ export default function AnalyticsPage(): React.JSX.Element {
       setIsLoading(false);
     }
   }, [authLoading, user, token]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/internal-api/analytics/bank')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data?.levels) setBank(data.levels as BankStats);
+      })
+      .catch(() => undefined);
+    fetch('/internal-api/analytics/content')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data?.levels) setContent(data.levels as Record<string, LevelContent>);
+      })
+      .catch(() => undefined);
+    fetch('/internal-api/analytics/difficulty')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data?.levels) setDifficulty(data as DifficultyData);
+      })
+      .catch(() => undefined);
+    const apiBase = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api/v1').replace(/\/$/, '');
+    fetch(`${apiBase}/jlpt-schedules`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (cancelled || !Array.isArray(data?.items)) return;
+        setSchedules(
+          data.items.map((it: Record<string, unknown>) => ({
+            id: String(it['id']),
+            title: String(it['title'] || ''),
+            examDate: String(it['examDate'] || ''),
+            registrationDeadline: it['registrationDeadline'] ? String(it['registrationDeadline']) : null,
+            levels: Array.isArray(it['levels']) ? (it['levels'] as unknown[]).map(String) : [],
+          })),
+        );
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     fetchAnalyticsData();
@@ -343,8 +645,28 @@ export default function AnalyticsPage(): React.JSX.Element {
           <AnalyticsDashboard
             attempts={currentAttempts}
             questionAttempts={currentQuestionAttempts}
+            skillAggregates={skillAggregates}
             targetLevel={(user?.targetLevel as Level) || 'N3'}
             targetScore={120}
+            userName={user?.name || user?.email?.split('@')[0] || 'Học viên'}
+            isDemoMode={showDemo}
+            mistakes={showDemo ? undefined : realMistakes}
+            totalWrongCount={showDemo ? undefined : realTotalWrongCount}
+            realStatsBySkillByLevel={showDemo ? undefined : realStatsBySkillByLevel}
+            realCoverageByLevel={showDemo ? undefined : realCoverageByLevel}
+            realPairsByLevel={showDemo ? undefined : realPairsByLevel}
+            realMasteryByLevel={showDemo ? undefined : realMasteryByLevel}
+            realReasonsByLevel={showDemo ? undefined : realReasonsByLevel}
+            realTrapsByLevel={showDemo ? undefined : realTrapsByLevel}
+            realTimedWeaknessByLevel={showDemo ? undefined : realTimedWeaknessByLevel}
+            realMondaiStatsByLevel={showDemo ? undefined : realMondaiStatsByLevel}
+            bank={bank}
+            activity={showDemo ? undefined : activity}
+            exams={examMetas}
+            schedules={schedules}
+            content={content}
+            difficulty={difficulty}
+            onSaveReason={showDemo ? undefined : saveReason}
           />
         )}
       </div>
