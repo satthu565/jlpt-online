@@ -9,19 +9,19 @@
 .stackBack, .stackFront { position: absolute; inset: 24px 18px 12px; border-radius: var(--radius-3xl, 24px); background: var(--surface-secondary); border: 1px solid var(--border); transform: rotate(-3deg); z-index: -1; }
 .answerScene .stackBack, .answerScene .stackFront { display: none; }
 .stackFront { inset: 24px 10px 17px; transform: rotate(2deg); background: var(--surface); }
-.flipper { position: relative; display: grid; min-height: 390px; transform-style: preserve-3d; transition: transform 480ms cubic-bezier(.22,.8,.22,1); cursor: pointer; outline-offset: 5px; border-radius: var(--radius-3xl,24px); }
+.flipper { position: relative; display: grid; grid-template-rows: minmax(0, 1fr); height: clamp(220px, calc(100dvh - 440px), 480px); transform-style: preserve-3d; transition: transform 480ms cubic-bezier(.22,.8,.22,1); cursor: pointer; outline-offset: 5px; border-radius: var(--radius-3xl,24px); }
 .flipped { transform: rotateY(180deg); }
-.face { position: relative; grid-area: 1 / 1; border: 1px solid var(--border); backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden; }
-.back { transform: rotateY(180deg); }
-.faceContent { min-height: 390px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 32px 24px; }
+.face { position: relative; grid-area: 1 / 1; min-height: 0; border: 1px solid var(--border); backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden; }
+.back { transform: rotateY(180deg); overflow-y: auto; overscroll-behavior: contain; }
+.faceContent { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; }
 .faceLabel { font-size: .6875rem; text-transform: uppercase; letter-spacing: .14em; color: var(--muted); margin-bottom: 20px; }
 .term { font-size: clamp(2rem, 8vw, 4.5rem); line-height: 1.5; font-weight: 700; overflow-wrap: anywhere; }
 .backTerm { min-width: 0; font-size: clamp(2rem, 6vw, 4.5rem); font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
 .reading { text-align: center; font-size: 1.375rem; line-height: 1.6; }
 .meaning { min-width: 0; font-size: clamp(1.125rem, 2.5vw, 1.625rem); font-weight: 650; line-height: 1.6; overflow-wrap: anywhere; }
-.flipHint { display: flex; align-items: center; gap: 8px; font-size: .75rem; color: var(--muted); margin-top: 28px; }
+.flipHint { display: flex; align-items: center; gap: 8px; font-size: .75rem; color: var(--muted); margin-top: 16px; }
 .examples { min-width: 0; display: flex; flex-direction: column; gap: 10px; font-size: clamp(1rem, 2.2vw, 1.375rem); line-height: 1.7; white-space: pre-line; overflow-wrap: anywhere; }
-.controls { min-height: 110px; padding-inline: 40px; }
+.controls { padding-inline: 40px; }
 .ratings { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; animation: controlsIn 160ms ease-out both; }
 .enter { animation: cardIn 260ms cubic-bezier(.16,1,.3,1) both; }
 .leaveLeft { animation: cardLeft 220ms ease-in both; }
@@ -40,21 +40,21 @@
   .enter, .leaveLeft, .leaveRight, .ratings { animation: none; }
 }
 
-.ratingPrompt { margin-bottom: 28px; text-align: center; font-size: 1.25rem; line-height: 1.5; font-weight: 600; color: var(--text-secondary); }
-.ratings .ratingButton { width: 100%; height: auto; min-height: 96px; padding: 18px 12px; border-radius: 24px; white-space: normal; font-size: 1.25rem; font-weight: 600; }
+.ratingPrompt { margin-bottom: 12px; text-align: center; font-size: 1.125rem; line-height: 1.5; font-weight: 600; color: var(--text-secondary); }
+.ratings .ratingButton { width: 100%; height: auto; min-height: 64px; padding: 10px 12px; border-radius: 24px; white-space: normal; font-size: 1rem; font-weight: 600; }
 .ratingName { display: flex; align-items: center; justify-content: center; gap: 10px; }
-.ratingContent { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.ratingContent { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .ratingInterval { font-size: .875rem; line-height: 1.4; font-weight: 400; }
 .ratings .again { background: color-mix(in srgb, var(--danger-soft) 45%, var(--surface)); color: var(--danger); }
 .ratings .hard { background: color-mix(in srgb, var(--warning) 10%, var(--surface)); color: var(--color-orange-700); }
 .ratings .good { background: var(--color-blue-500); color: var(--accent-foreground); }
 .ratings .easy { background: color-mix(in srgb, var(--success-soft) 45%, var(--surface)); color: var(--success-soft-foreground); }
-.ratingHint { display: flex; align-items: center; gap: 8px; width: fit-content; padding: 7px 14px; border-radius: 999px; background: var(--color-blue-50); margin-top: 22px; text-align: left; font-size: .875rem; line-height: 1.5; color: var(--text-muted); }
+.ratingHint { display: flex; align-items: center; gap: 8px; width: fit-content; padding: 7px 14px; border-radius: 999px; background: var(--color-blue-50); margin-top: 10px; text-align: left; font-size: .875rem; line-height: 1.5; color: var(--text-muted); }
 
 /* Full-face HeroUI triggers must remain transparent in every pointer state. */
 .flipSurface { --button-bg: transparent; --button-bg-hover: transparent; --button-bg-pressed: transparent; position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; border-radius: inherit; transform: none; }
 .flipSurface[data-pressed="true"] { transform: none; }
-.answerContent { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 28px 40px 32px; }
+.answerContent { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 20px 32px 24px; }
 .answerHeading { position: relative; display: flex; justify-content: center; width: 100%; }
 .answerBadge, .hanViet, .detailLabel { background: var(--color-blue-50); color: var(--color-blue-600); }
 .answerBadge { font-size: 1rem; padding-inline: 24px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
@@ -62,7 +62,7 @@
 .audioButton { position: relative; z-index: 2; flex-shrink: 0; border-radius: 50%; background: var(--color-blue-50); color: var(--color-blue-500); }
 .hanViet { font-size: 1rem; max-width: 100%; height: auto; min-height: 32px; padding: 5px 20px; white-space: normal; text-align: center; }
 .answerDetails { width: 100%; margin-top: 10px; }
-.detailRow { display: grid; grid-template-columns: 112px minmax(0, 1fr); align-items: start; gap: 24px; padding-block: 18px; }
+.detailRow { display: grid; grid-template-columns: 112px minmax(0, 1fr); align-items: start; gap: 16px; padding-block: 10px; }
 .detailLabel { justify-content: center; gap: 8px; font-size: 1rem; }
 @media (max-width: 520px) {
   .answerContent { padding: 22px 20px 24px; }
