@@ -12,6 +12,30 @@ const card = (id: string, fresh = false): DueFlashcard => ({
   state: fresh ? 'learning' : 'review', dueAt: new Date(now).toISOString(),
 });
 describe('SRS study session', () => {
+  it('rates a selected ready card without rating the skipped card or releasing a waiting card early', () => {
+    const initial = createStudyState([card('one'), card('two'), card('three')], now);
+    const selected = rateStudyCard(initial, 'two', 3, now, 'selected');
+    expect(selected.session.events.map(event => event.cardId)).toEqual(['two']);
+    expect(studyQueue(selected.session).map(entry => entry.card.cardId)).toEqual(['one', 'three']);
+    const waiting = rateStudyCard(selected, 'three', 1, now, 'forgotten');
+    expect(rateStudyCard(waiting, 'three', 3, now + 100, 'early')).toBe(waiting);
+    expect(undoStudyRating(waiting)).toEqual(selected);
+  });
+  it('restores per-account local stars alongside a session and rejects malformed star lists', () => {
+    const initial = { ...createStudyState([card('one')], now), starredCardIds: ['one'] };
+    expect(restoreStudyState(JSON.stringify(initial), [card('one')], now).starredCardIds).toEqual(['one']);
+    expect(() => restoreStudyState(JSON.stringify({ ...initial, starredCardIds: [42] }), [], now)).toThrow();
+  });
+
+  it('makes due cards immediately available even before the next runner clock tick', () => {
+    const state = createStudyState([card('one'), card('two', true)], now + 5);
+    const queue = selectStudyQueue(state, now).entries;
+    expect(queue.filter(entry => entry.availableAt > now)).toHaveLength(0);
+    expect(queue.find(entry => entry.availableAt <= now)?.card.cardId).toBe('one');
+    const restored = restoreStudyState(JSON.stringify(state), state.session.cards, now + 10);
+    expect(selectStudyQueue(restored, now).entries.every(entry => entry.availableAt <= now)).toBe(true);
+  });
+
   it('keeps a forgotten card waiting for ten minutes while other cards can continue', () => {
     const initial = createStudyState([card('one'), card('two')], now);
     const forgotten = rateStudyCard(initial, 'one', 1, now, 'r1');

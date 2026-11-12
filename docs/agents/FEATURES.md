@@ -158,6 +158,14 @@ Reviewed 297 文字・語彙 questions across all 11 imported N5 exams. Prepared
 
 ## SRS study session (2026-11-09)
 
+- Workspace ôn tập dùng container chung của website (tối đa 1200px, cùng lề responsive với Sổ tay/Thư viện đề/Kế hoạch), không nới rộng riêng cho SRS: toolbar HeroUI với tab Ôn tập/Thẻ học (số thẻ thật), mục tiêu/reset/menu lưu và hoàn tác; Lưu kết quả đồng bộ tại chỗ, mũi tên quay về lưu trước khi rời phiên; tiến độ một hàng; mục tiêu/giới hạn thẻ mới mở rộng ngay trong cùng Card tiến độ, ngăn bằng Separator; chú thích ngắn kèm Tooltip HeroUI xem chi tiết, hai ô chọn xếp một cột trên điện thoại. Mũi tên duyệt thẻ đang sẵn sàng mà không chấm điểm; đánh giá thẻ đang chọn vẫn giữ thời gian chờ. Dấu sao lưu riêng theo tài khoản trên trình duyệt. Bốn mức có icon và dòng Ôn lại sau; âm thanh vẫn theo cờ tính năng hiện có.
+
+- Mặt sau flashcard rộng, có ProgressBar HeroUI theo vị trí thẻ, Chip Đáp án/Hán Việt, từ và cách đọc nổi bật; Separator và nhãn Nghĩa/Ví dụ tách nội dung thật. Bấm toàn bộ hai mặt bằng nút HeroUI trong suốt cả khi hover/nhấn, hỗ trợ Enter/Space; âm thanh chỉ xuất hiện khi tính năng và callback phát có sẵn; không lồng nút trong nút.
+
+- Đánh giá dưới flashcard theo mẫu: câu hỏi mức độ nhớ, bốn nút Quên/Khó nhớ/Nhớ/Dễ nhớ màu hồng/cam/đỏ/xanh với mốc ôn ngắn; màn hình nhỏ chia hai cột. Kết quả vẫn tự lưu nháp trên thiết bị, gửi máy chủ khi bấm Lưu kết quả.
+
+- Th? t? API ??n h?n m? ngay khi v?o tab, kh?ng hi?n nh?m m?n h?nh ch? 0:01 gi?a hai nh?p ??ng h?; th?i gian ch? th? Qu?n v?n ???c gi? khi t?i l?i.
+
 - Flashcard HeroUI hai mặt, lật 3D và chuyển thẻ, hỗ trợ giảm chuyển động, phím Space/Enter/1–4; 4 nút ghi rõ mốc ôn dự kiến theo lịch sử (lịch API hiện tại là nguồn chính thức).
 - Chọn Quên tạo hàng chờ 10 phút trong buổi; tiếp tục sau reload, hiển thị đếm ngược thay vì báo hoàn thành khi còn thẻ chờ.
 - Hoàn tác đánh giá cuối chưa chốt; đánh giá lưu nháp bền vững trên thiết bị, bấm Lưu kết quả hoặc Lưu và về sổ tay để đưa vào hàng đợi API có idempotency. Không hoàn tác lượt đã gửi máy chủ.

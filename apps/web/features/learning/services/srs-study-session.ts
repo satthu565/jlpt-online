@@ -11,6 +11,7 @@ export interface StudyState {
   days: Record<string, DailyRecord>;
   session: StudySession;
   lastReviewedCards?: DueFlashcard[];
+  starredCardIds?: string[];
 }
 export interface StudyEntry { card: DueFlashcard; availableAt: number }
 
@@ -39,7 +40,10 @@ export function projectCard(card: DueFlashcard, rating: ReviewRating): DueFlashc
 }
 
 export function studyQueue(session: StudySession): StudyEntry[] {
-  const queue = session.cards.map(card => ({ card, availableAt: session.startedAt }))
+  // The due endpoint already selected these cards for immediate study. Only
+  // explicit relearning events should delay a card; startedAt can be newer than
+  // the runner's last clock tick when a session is created or restored.
+  const queue = session.cards.map(card => ({ card, availableAt: 0 }))
     .sort((a, b) => Number(isNewCard(a.card)) - Number(isNewCard(b.card)));
   for (const event of session.events) {
     const index = queue.findIndex(entry => entry.card.cardId === event.cardId);
@@ -79,7 +83,7 @@ export function selectStudyQueue(state: StudyState, now = Date.now()): { entries
 }
 export function rateStudyCard(state: StudyState, cardId: string, rating: ReviewRating, now: number, id: string): StudyState {
   const entries = selectStudyQueue(state, now).entries;
-  const active = entries.find(entry => entry.availableAt <= now);
+  const active = entries.find(entry => entry.card.cardId === cardId && entry.availableAt <= now);
   if (!active || active.card.cardId !== cardId) return state;
   const original = state.session.cards.find(card => card.cardId === cardId)!;
   const event: StudyEvent = {
@@ -119,6 +123,7 @@ export function restoreStudyState(raw: string, cards: DueFlashcard[], now = Date
     ![5, 10, 20, 30, 50].includes(stored.settings?.dailyGoal) ||
     ![0, 5, 10, 20, 30, 50].includes(stored.settings?.newPerDay) ||
     !stored.days || typeof stored.days !== 'object') throw new Error('Invalid SRS study state');
+  if (stored.starredCardIds !== undefined && (!Array.isArray(stored.starredCardIds) || stored.starredCardIds.some(id => typeof id !== 'string'))) throw new Error('Invalid SRS bookmarks');
   if (stored.lastReviewedCards !== undefined && !Array.isArray(stored.lastReviewedCards)) throw new Error('Invalid SRS archive');
   for (const card of [...stored.session.cards, ...(stored.lastReviewedCards ?? [])]) {
     if (!card || typeof card.cardId !== 'string' || !card.front || !card.back ||
