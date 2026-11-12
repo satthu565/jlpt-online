@@ -32,19 +32,19 @@ export interface AnalyticsSidebarNavProps {
 const NAV_ITEMS = [
   { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
   { id: 'assessment', label: 'Khả năng đỗ', icon: ShieldCheck },
+  { id: 'priority-matrix', label: 'Ưu tiên ôn tập', icon: Target },
+  { id: 'skills', label: 'Phân tích kỹ năng', icon: ChartBar },
+  { id: 'question-types', label: 'Dạng câu hỏi', icon: ListChecks },
+  { id: 'error-analysis', label: 'Nguyên nhân sai', icon: ScanSearch },
+  { id: 'mistake-library', label: 'Kiến thức thường sai', icon: BookX },
+  { id: 'progress', label: 'Tiến bộ', icon: TrendingUp },
+  { id: 'mistake-intelligence', label: 'Phân tích nâng cao', icon: BrainCircuit },
+  { id: 'history', label: 'Lịch sử làm đề', icon: History },
+  { id: 'activity', label: 'Hoạt động học tập', icon: CalendarDays },
   { id: 'exam-plan', label: 'Đếm ngược & kho đề', icon: BookOpenCheck },
   { id: 'knowledge-map', label: 'Bản đồ kiến thức', icon: BookOpenCheck },
   { id: 'frequency', label: 'Kiến thức hay gặp', icon: BarChart3 },
   { id: 'year-trends', label: 'Xu hướng qua năm', icon: CalendarRange },
-  { id: 'error-analysis', label: 'Nguyên nhân sai', icon: ScanSearch },
-  { id: 'mistake-library', label: 'Kiến thức thường sai', icon: BookX },
-  { id: 'mistake-intelligence', label: 'Phân tích nâng cao', icon: BrainCircuit },
-  { id: 'priority-matrix', label: 'Ưu tiên ôn tập', icon: Target },
-  { id: 'progress', label: 'Tiến bộ', icon: TrendingUp },
-  { id: 'skills', label: 'Phân tích kỹ năng', icon: ChartBar },
-  { id: 'question-types', label: 'Dạng câu hỏi', icon: ListChecks },
-  { id: 'history', label: 'Lịch sử làm đề', icon: History },
-  { id: 'activity', label: 'Hoạt động học tập', icon: CalendarDays },
 ];
 
 export function AnalyticsSidebarNav({

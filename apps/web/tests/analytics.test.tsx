@@ -531,6 +531,15 @@ describe('Analytics, True Progress & Dashboard Hand-Calculation Suite (L03)', ()
     for (const id of ['overview', 'assessment', 'exam-plan', 'priority-matrix', 'progress', 'skills', 'history', 'activity']) {
       expect(html).toContain(`id="${id}"`);
     }
+    const sectionOrder = [
+      'overview', 'assessment', 'priority-matrix', 'skills', 'question-types',
+      'error-analysis', 'mistake-library', 'progress', 'mistake-intelligence',
+      'history', 'activity', 'exam-plan', 'knowledge-map', 'frequency', 'year-trends',
+    ];
+    const content = html.slice(html.indexOf('id="overview"'));
+    const positions = sectionOrder.map((id) => content.indexOf(`id="${id}"`));
+    expect(positions.every((position) => position >= 0)).toBe(true);
+    expect(positions).toEqual([...positions].sort((a, b) => a - b));
     // the old screen-reader-only block with hard-coded text is gone
     expect(html).not.toContain('sr-only');
     expect(html).not.toContain('data-testid="true-progress-widget"');
@@ -635,7 +644,7 @@ describe('Analytics, True Progress & Dashboard Hand-Calculation Suite (L03)', ()
       />
     );
 
-    expect(html).toContain('05 · BỘ SƯU TẬP LỖI SAI CÁ NHÂN');
+    expect(html).toContain('BỘ SƯU TẬP LỖI SAI CÁ NHÂN');
     expect(html).toContain('Kiến thức cần ôn');
     // no fabricated template records: without real mistake data the list stays empty
     expect(html).not.toContain('～ようにする');

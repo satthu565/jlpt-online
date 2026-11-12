@@ -225,7 +225,7 @@ export function AnalyticsKnowledgeMap({
           <div className="flex items-start justify-between gap-4 mb-4">
             <div>
               <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-slate-100">
-                01 · Bản đồ kiến thức JLPT {level}
+                Bản đồ kiến thức JLPT {level}
               </h2>
               <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
                 Nhóm kiến thức và dạng câu trong kho đề

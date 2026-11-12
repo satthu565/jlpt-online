@@ -120,7 +120,7 @@ export function AnalyticsYearTrends({ level = 'N3', bank, content, difficulty }:
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
         <div>
           <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-slate-100">
-            03 · Quy luật & xu hướng đề theo năm {level}
+            Quy luật & xu hướng đề theo năm {level}
           </h2>
           <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
             Heatmap năm × kiến thức, tính từ các đề thi chính thức trong kho đề

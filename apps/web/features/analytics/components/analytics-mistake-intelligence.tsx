@@ -665,7 +665,7 @@ export function AnalyticsMistakeIntelligence({
             <div className="flex items-start justify-between gap-4 mb-4">
               <div>
                 <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-slate-100">
-                  06 · Vì sao tôi thường trả lời sai?
+                  Vì sao tôi thường trả lời sai?
                 </h3>
                 <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
                   Phân tích lượt sai; chọn từng nguyên nhân để xem ví dụ
@@ -726,7 +726,7 @@ export function AnalyticsMistakeIntelligence({
             <div className="flex items-start justify-between gap-4 mb-4">
               <div>
                 <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-slate-100">
-                  07 · Kiến thức giải được nhiều câu hỏi
+                  Kiến thức giải được nhiều câu hỏi
                 </h3>
                 <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
                   Số câu cần đến kiến thức để xác định đáp án
@@ -788,7 +788,7 @@ export function AnalyticsMistakeIntelligence({
             <div className="flex items-start justify-between gap-4 mb-3">
               <div>
                 <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-slate-100">
-                  08 · Những cặp kiến thức dễ nhầm
+                  Những cặp kiến thức dễ nhầm
                 </h3>
                 <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
                   Chọn một cặp để thấy khác biệt về nghĩa và cách dùng
@@ -867,7 +867,7 @@ export function AnalyticsMistakeIntelligence({
             <div className="flex items-start justify-between gap-4 mb-4">
               <div>
                 <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-slate-100">
-                  09 · Dạng bẫy khiến tôi mất điểm
+                  Dạng bẫy khiến tôi mất điểm
                 </h3>
                 <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
                   Đáp án nhiễu, phủ định và thông tin chuyển ý
@@ -928,7 +928,7 @@ export function AnalyticsMistakeIntelligence({
             <div className="flex items-start justify-between gap-4 mb-4">
               <div>
                 <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-slate-100">
-                  10 · Đã học nhưng chưa thành thạo
+                  Đã học nhưng chưa thành thạo
                 </h3>
                 <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
                   Phân biệt nhận biết, ghi nhớ và thực sự vận dụng được
@@ -1031,7 +1031,7 @@ export function AnalyticsMistakeIntelligence({
             <div className="flex items-start justify-between gap-4 mb-4">
               <div>
                 <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-slate-100">
-                  11 · Điểm yếu đang mất thời gian nhất
+                  Điểm yếu đang mất thời gian nhất
                 </h3>
                 <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
                   Tổng thời gian dành cho câu trả lời sai
@@ -1094,7 +1094,7 @@ export function AnalyticsMistakeIntelligence({
       <Card className="p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
         <div>
           <span className="text-[10px] font-extrabold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
-            12 · ĐỀ XUẤT CÁ NHÂN HÓA TỔNG HỢP
+            ĐỀ XUẤT CÁ NHÂN HÓA TỔNG HỢP
           </span>
           <h3 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-slate-100 mt-0.5">
             Kết hợp 6 góc nhìn thành kế hoạch hành động ({level})

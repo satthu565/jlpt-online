@@ -1389,7 +1389,7 @@ export function AnalyticsMistakeLibrary({
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
         <div>
           <span className="text-[10px] font-extrabold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
-            05 · BỘ SƯU TẬP LỖI SAI CÁ NHÂN
+            BỘ SƯU TẬP LỖI SAI CÁ NHÂN
           </span>
           <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-slate-100 mt-0.5">
             Kiến thức tôi thường làm sai

@@ -230,7 +230,7 @@ export function AnalyticsErrorAnalysis({
           <div className="flex items-start justify-between gap-4 mb-4">
             <div>
               <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-slate-100">
-                04 · Tôi thường sai ở đâu?
+                Tôi thường sai ở đâu?
               </h2>
               <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
                 Những dạng câu có nhiều lỗi nhất trong bài làm của bạn

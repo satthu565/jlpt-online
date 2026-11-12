@@ -36,6 +36,8 @@ Ký hiệu: ✅ đang chạy · 🙈 đã code nhưng đang ẩn · ⏳ code xon
 | Sổ tay, flashcard SRS (tạo thẻ từ các mục chưa thuộc bằng nút trong tab ôn tập; lỗi tải được hiển thị); lọc mục theo cấp độ đề nguồn N5–N1 kết hợp loại, trạng thái và tìm kiếm | `/so-tay` | `features/learning`, `packages/srs` |
 | Kế hoạch học | `/ke-hoach` | `features/planner` |
 | Thống kê cá nhân | `/thong-ke` | `features/analytics` |
+
+Trang `/thong-ke`: bố cục ưu tiên mức sẵn sàng thi → hành động ôn tập → kỹ năng/dạng câu → lỗi sai → tiến bộ → phân tích sâu → lịch sử/nhịp độ → lịch thi/kho đề → nội dung kho đề. Các mục và anchor cũ vẫn được giữ để điều hướng.
 | Lịch thi JLPT tại Việt Nam, nhắc hạn đăng ký | `/lich-thi` | `apps/api/src/modules/exam/jlpt-schedule.controller.ts` |
 | Tài khoản, lịch sử | `/tai-khoan`, `/lich-su` | `features/account` |
 | Đăng ký, đăng nhập, xác minh email, quên mật khẩu | `/dang-ky`, `/dang-nhap`… | module `auth` |

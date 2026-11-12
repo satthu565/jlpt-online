@@ -652,7 +652,7 @@ export function AnalyticsDashboard({
             </p>
           )}
 
-          {/* Section 1: Overview KPIs */}
+          {/* Tổng quan */}
           <AnalyticsKpiCards
             avgScore={avgScore}
             completedExams={totalCompleted}
@@ -670,7 +670,7 @@ export function AnalyticsDashboard({
             </p>
           )}
 
-          {/* Section 2: Assessment & Personal Plan */}
+          {/* Sẵn sàng thi & kế hoạch nhanh */}
           <AnalyticsAssessment
             level={currentLevel}
             totalScore={avgScore ?? 0}
@@ -685,26 +685,23 @@ export function AnalyticsDashboard({
             onOpenStudyModal={handleOpenStudyModal}
           />
 
-          {/* Countdown to the next sitting and progress through the exam bank */}
-          <AnalyticsExamPlan
+          {/* Ưu tiên ôn tập */}
+          <AnalyticsPriorityMatrix
+            attempts={attempts}
+            questionAttempts={questionAttempts}
             level={currentLevel}
-            exams={levelExams}
-            attempts={levelAttempts}
-            schedules={schedules ?? []}
-            thresholdScore={thresholdInfo.total}
-            latestScore={latestScore}
+            mondaiStats={realMondaiStatsByLevel?.[currentLevel]}
+            bankMondai={bank?.[currentLevel]?.mondai.map((m) => ({ type: m.type, count: m.count }))}
+            onOpenStudyModal={handleOpenStudyModal}
           />
 
-          {/* Section 3: Knowledge Map */}
-          <AnalyticsKnowledgeMap level={currentLevel} bank={bank?.[currentLevel]} />
+          {/* Kỹ năng & dạng câu */}
+          <AnalyticsSkillsMondai
+            skills={skillCategories}
+            onOpenStudyModal={handleOpenStudyModal}
+          />
 
-          {/* Section 4: Frequency Ranking */}
-          <AnalyticsFrequencyRanking level={currentLevel} bank={bank?.[currentLevel]} content={content?.[currentLevel]} />
-
-          {/* Section 5: Year Trends Heatmap */}
-          <AnalyticsYearTrends level={currentLevel} bank={bank?.[currentLevel]} content={content?.[currentLevel]} difficulty={difficulty} />
-
-          {/* Section 6: Error Analysis */}
+          {/* Dạng câu thường sai */}
           <AnalyticsErrorAnalysis
             attempts={attempts}
             questionAttempts={questionAttempts}
@@ -714,7 +711,7 @@ export function AnalyticsDashboard({
             onOpenStudyModal={handleOpenStudyModal}
           />
 
-          {/* Section 7: Mistake Library */}
+          {/* Kiến thức thường sai */}
           <AnalyticsMistakeLibrary
             attempts={attempts}
             questionAttempts={questionAttempts}
@@ -726,7 +723,13 @@ export function AnalyticsDashboard({
             onReviewAll={(count) => handleOpenStudyModal('review', `${count} mục`)}
           />
 
-          {/* Section 8: Mistake Intelligence (06 angles) */}
+          {/* Tiến bộ */}
+          <AnalyticsProgressionCharts
+            points={progressionPoints}
+            thresholdScore={thresholdInfo.total}
+          />
+
+          {/* Phân tích lỗi sai nâng cao */}
           <AnalyticsMistakeIntelligence
             attempts={attempts}
             questionAttempts={questionAttempts}
@@ -744,29 +747,7 @@ export function AnalyticsDashboard({
             }
           />
 
-          {/* Section 9: Priority Matrix */}
-          <AnalyticsPriorityMatrix
-            attempts={attempts}
-            questionAttempts={questionAttempts}
-            level={currentLevel}
-            mondaiStats={realMondaiStatsByLevel?.[currentLevel]}
-            bankMondai={bank?.[currentLevel]?.mondai.map((m) => ({ type: m.type, count: m.count }))}
-            onOpenStudyModal={handleOpenStudyModal}
-          />
-
-          {/* Section 10: Progression Line Chart & Mini Charts */}
-          <AnalyticsProgressionCharts
-            points={progressionPoints}
-            thresholdScore={thresholdInfo.total}
-          />
-
-          {/* Section 11 & 12: Skills & Question Types (All on 1 page) */}
-          <AnalyticsSkillsMondai
-            skills={skillCategories}
-            onOpenStudyModal={handleOpenStudyModal}
-          />
-
-          {/* Section 13: Exam History */}
+          {/* Lịch sử làm đề */}
           <AnalyticsExamHistory
             attempts={filteredAttempts}
             targetThreshold={thresholdInfo.total}
@@ -774,13 +755,32 @@ export function AnalyticsDashboard({
             onOpenAllHistoryModal={() => handleOpenStudyModal('review')}
           />
 
-          {/* Section 14: Activity Heatmap & Insights */}
+          {/* Nhịp độ học tập */}
           <AnalyticsActivityHeatmap
             attempts={filteredAttempts}
             currentStreakDays={streakDays}
             activity={activity}
             weakestSkill={weakestInfo.accuracy !== null ? { name: weakestInfo.name, accuracy: weakestInfo.accuracy } : null}
           />
+          {/* Lịch thi & tiến độ kho đề */}
+          <AnalyticsExamPlan
+            level={currentLevel}
+            exams={levelExams}
+            attempts={levelAttempts}
+            schedules={schedules ?? []}
+            thresholdScore={thresholdInfo.total}
+            latestScore={latestScore}
+          />
+
+          {/* Bản đồ kiến thức kho đề */}
+          <AnalyticsKnowledgeMap level={currentLevel} bank={bank?.[currentLevel]} />
+
+          {/* Kiến thức hay gặp */}
+          <AnalyticsFrequencyRanking level={currentLevel} bank={bank?.[currentLevel]} content={content?.[currentLevel]} />
+
+          {/* Xu hướng qua năm */}
+          <AnalyticsYearTrends level={currentLevel} bank={bank?.[currentLevel]} content={content?.[currentLevel]} difficulty={difficulty} />
+
         </div>
       </div>
 

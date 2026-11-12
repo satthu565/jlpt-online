@@ -151,7 +151,7 @@ export function AnalyticsPriorityMatrix({
     return (
       <Card id="priority-matrix" className="scroll-mt-20 p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm mb-6">
         <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-slate-100">
-          13 · Tôi nên ưu tiên học gì để tăng điểm?
+          Tôi nên ưu tiên học gì để tăng điểm?
         </h2>
         <p className="mt-3 py-6 text-center text-xs text-slate-500 dark:text-slate-400">
           Chưa đủ dữ liệu: cần ít nhất 5 câu đã làm ở mỗi dạng ({level}) để xếp hạng dạng câu nên ưu tiên.
@@ -168,7 +168,7 @@ export function AnalyticsPriorityMatrix({
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
         <div>
           <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-slate-100">
-            13 · Tôi nên ưu tiên học gì để tăng điểm?
+            Tôi nên ưu tiên học gì để tăng điểm?
           </h2>
           <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
             Kết hợp tần suất xuất hiện trong kho đề + mức yếu cá nhân + số câu đã làm

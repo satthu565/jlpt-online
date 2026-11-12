@@ -125,7 +125,7 @@ export function AnalyticsFrequencyRanking({ level = 'N3', bank, content }: Analy
           <div className="flex items-start justify-between gap-4 mb-4">
             <div>
               <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-slate-100">
-                02 · Kiến thức xuất hiện nhiều nhất {level} {year !== 'all' ? `· Năm ${year}` : ''}
+                Kiến thức xuất hiện nhiều nhất {level} {year !== 'all' ? `· Năm ${year}` : ''}
               </h2>
               <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{description}</p>
             </div>
