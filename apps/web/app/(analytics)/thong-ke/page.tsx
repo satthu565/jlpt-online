@@ -129,6 +129,22 @@ const DEMO_QUESTIONS: QuestionAttemptRecord[] = [
 
 const MAX_ATTEMPT_PAGES = 20;
 
+function toExamMetas(items: Record<string, unknown>[]): ExamMeta[] {
+  const metas: ExamMeta[] = [];
+  for (const ex of items) {
+    if (!ex['id'] || !ex['slug']) continue;
+    metas.push({
+      id: String(ex['id']),
+      slug: String(ex['slug']),
+      title: String(ex['title'] || ''),
+      level: String(ex['level'] || ''),
+      year: Number(ex['year']) || 0,
+      session: String(ex['session'] ?? ''),
+    });
+  }
+  return metas;
+}
+
 async function fetchAllAttempts(
   baseUrl: string,
   headers: Record<string, string>,
@@ -253,6 +269,17 @@ export default function AnalyticsPage(): React.JSX.Element {
       setIsUnauthorized(true);
       setAttempts([]);
       setQuestionAttempts([]);
+      // The exam list is public: guests still see the exam-bank progress grid.
+      const guestBaseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api/v1').replace(/\/$/, '');
+      try {
+        const res = await fetch(`${guestBaseUrl}/exams?limit=100`, { credentials: 'include' });
+        if (res.ok) {
+          const data = await res.json();
+          setExamMetas(toExamMetas(Array.isArray(data) ? data : data.items || []));
+        }
+      } catch {
+        // keep the grid's empty state
+      }
       return;
     }
 
@@ -294,18 +321,7 @@ export default function AnalyticsPage(): React.JSX.Element {
         try {
           const examsData = await examsRes.json();
           const examItems = Array.isArray(examsData) ? examsData : (examsData.items || []);
-          const metas: ExamMeta[] = [];
           examItems.forEach((ex: Record<string, unknown>) => {
-            if (ex['id'] && ex['slug']) {
-              metas.push({
-                id: String(ex['id']),
-                slug: String(ex['slug']),
-                title: String(ex['title'] || ''),
-                level: String(ex['level'] || ''),
-                year: Number(ex['year']) || 0,
-                session: String(ex['session'] ?? ''),
-              });
-            }
             if (ex['id']) {
               examsMap.set(String(ex['id']), {
                 title: String(ex['title'] || ''),
@@ -313,7 +329,7 @@ export default function AnalyticsPage(): React.JSX.Element {
               });
             }
           });
-          setExamMetas(metas);
+          setExamMetas(toExamMetas(examItems));
         } catch {
           // Ignore exams parse error
         }
